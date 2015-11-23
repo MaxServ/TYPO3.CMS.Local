@@ -105,14 +105,27 @@ class GitRepositoryController extends AbstractController
      */
     public static function statusAction($arguments = array())
     {
+        $commits = array();
+        $detail = '';
         $format = '';
+        $range = 1;
         $repository = '';
         $site = '';
+        $status = 'OK';
+
+        if (isset($arguments['detail'])) {
+            if ($arguments['detail'] === 'oneline') {
+                $detail = '--oneline';
+            }
+        }
         if (isset($arguments['format'])) {
             $format = $arguments['format'];
         }
         if (isset($arguments['site'])) {
             $site = $arguments['site'];
+        }
+        if (isset($arguments['range'])) {
+            $range = abs((integer)$arguments['range']);
         }
         if (isset($arguments['repository'])) {
             $repository = $arguments['repository'];
@@ -122,12 +135,65 @@ class GitRepositoryController extends AbstractController
 
         $repositoryPath = self::getRepositoryPath($path, $repository);
         chdir($repositoryPath);
-        $log = self::executeCommand('git log -1 --oneline');
 
-        if ($format === 'json') {
-            self::sendJsonResponse($log);
+        if ($detail === '--oneline') {
+            $log = self::executeCommand('git log -' . $range . ' ' . $detail);
+            $lines = explode(PHP_EOL, $log);
+            array_pop($lines);
+            foreach ($lines as $line) {
+                list($sha1, $subject) = explode(' ', $line, 2);
+                $commit = new \stdClass();
+                $commit->sha1 = $sha1;
+                $commit->subject = $subject;
+                $commits[] = $commit;
+            }
+        } else {
+            $log = self::executeCommand(
+                'git log -' . $range . ' --pretty=format:\'<change>%n' .
+                '<commit>%H</commit>%n' .
+                '<abbreviated_commit>%h</abbreviated_commit>%n' .
+                '<tree>%T</tree>%n' .
+                '<abbreviated_tree>%t</abbreviated_tree>%n' .
+                '<parent>%P</parent>%n' .
+                '<abbreviated_parent>%p</abbreviated_parent>>%n' .
+                '<subject><![CDATA[%s]]></subject>%n' .
+                '<body><![CDATA[%b]]></body>%n' .
+                '<author>%n' .
+                '  <name>%aN</name>%n' .
+                '  <email>%aE</email>%n' .
+                '  <date>%aD</date>%n' .
+                '</author>%n' .
+                '<commiter>%n' .
+                '  <name>%cN</name>%n' .
+                '  <email>%cE</email>%n' .
+                '  <date>%cD</date>%n' .
+                '</commiter>%n' .
+                '</change>%n' .
+                '\''
+            );
+
+            if ($range > 1) {
+                $log = '<changes>' . $log . '</changes>';
+                $xml = simplexml_load_string($log, null, LIBXML_NOCDATA);
+                $commitData = json_decode(json_encode($xml));
+                $commits = $commitData->change;
+            } else {
+                $xml = simplexml_load_string($log, null, LIBXML_NOCDATA);
+                $commitData = json_decode(json_encode($xml));
+                $commits = $commitData;
+            }
+            if (json_last_error()) {
+                $status = 'Error';
+                $commit = new \stdClass();
+                $commit->message = json_last_error_msg();
+                $commits[] = $commit;
+            }
         }
 
-        return $log;
+        if ($format === 'json') {
+            self::sendJsonResponse($commits, $status);
+        }
+
+        return $commits;
     }
 }

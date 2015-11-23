@@ -89,6 +89,78 @@ Will return a json object containing the latest commit sha1 and message. Note th
 }
 ```
 
+`/git/status/review.local.typo3.org/typo3_src/3`
+Will return the last 3 commit messages in oneline format.
+```
+{
+	"status": "OK",
+	"data": [
+		{
+			"sha1": "848b2fc",
+			"subject": "[BUGFIX] RTE fields do not handle eval validation like required"
+		},
+		{
+			"sha1": "be9ee02",
+			"subject": "[TASK] Order use statements alphabetically"
+		},
+		{
+			"sha1": "ee4ab3c",
+			"subject": "[TASK] Replace assertion method to use dedicated method"
+		}
+	]
+}
+```
+
+`/git/status/review.local.typo3.org/typo3_src/2/full`
+Will return the last 2 commit messages in full format.
+
+```
+{
+	"status": "OK",
+	"data": [
+		{
+			"commit": "848b2fc059c6414eef3d9305c8ecd0821dce831b",
+			"abbreviated_commit": "848b2fc",
+			"tree": "859dc9ee1b34a7ac47495f2c48b750d7f984ebdd",
+			"abbreviated_tree": "859dc9e",
+			"parent": "be9ee02f0e4bb826a81dc4729d5f6b6ce9f875c2",
+			"abbreviated_parent": "be9ee02",
+			"subject": "[BUGFIX] RTE fields do not handle eval validation like required",
+			"body": "Resolves: #70246\nReleases: master\nChange-Id: I3e536ab85740b58e07f1b262692bf3a9773edd62\nReviewed-on: https://review.typo3.org/44810\nReviewed-by: Andreas Fernandez <typo3@scripting-base.de>\nTested-by: Andreas Fernandez <typo3@scripting-base.de>\nReviewed-by: Christian Kuhn <lolli@schwarzbu.ch>\nTested-by: Christian Kuhn <lolli@schwarzbu.ch>\n",
+			"author": {
+				"name": "Frank Nägler",
+				"email": "frank.naegler@typo3.org",
+				"date": "Fri, 20 Nov 2015 10:51:59 +0100"
+			},
+			"commiter": {
+				"name": "Christian Kuhn",
+				"email": "lolli@schwarzbu.ch",
+				"date": "Fri, 20 Nov 2015 15:08:30 +0100"
+			}
+		},
+		{
+			"commit": "be9ee02f0e4bb826a81dc4729d5f6b6ce9f875c2",
+			"abbreviated_commit": "be9ee02",
+			"tree": "fb94900a4491682b2dbcb24c19bc319a8709672c",
+			"abbreviated_tree": "fb94900",
+			"parent": "ee4ab3cf1901d4a86f7fc107a24d80d45d1d1a63",
+			"abbreviated_parent": "ee4ab3c",
+			"subject": "[TASK] Order use statements alphabetically",
+			"body": "Resolves: #71726\nReleases: master\nChange-Id: I4a356c8da668acee555149eee9cf56ccdb4dc0ee\nReviewed-on: https://review.typo3.org/44822\nReviewed-by: Andreas Fernandez <typo3@scripting-base.de>\nTested-by: Andreas Fernandez <typo3@scripting-base.de>\nReviewed-by: Christian Kuhn <lolli@schwarzbu.ch>\nTested-by: Christian Kuhn <lolli@schwarzbu.ch>\n",
+			"author": {
+				"name": "Wouter Wolters",
+				"email": "typo3@wouterwolters.nl",
+				"date": "Fri, 20 Nov 2015 14:02:23 +0100"
+			},
+			"commiter": {
+				"name": "Christian Kuhn",
+				"email": "lolli@schwarzbu.ch",
+				"date": "Fri, 20 Nov 2015 14:58:22 +0100"
+			}
+		}
+	]
+}
+```
 ## Version controller
 `/version`
 

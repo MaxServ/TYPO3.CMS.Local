@@ -46,7 +46,7 @@ class AbstractController
      *
      * @return string
      */
-    protected function executeCommand($command)
+    protected static function executeCommand($command)
     {
         $output = '';
         $inputOutput = array();
