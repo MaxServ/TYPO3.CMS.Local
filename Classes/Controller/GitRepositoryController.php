@@ -52,6 +52,44 @@ class GitRepositoryController extends AbstractController
     }
 
     /**
+     * Show git branches
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function branchAction($arguments = array())
+    {
+        $format = '';
+        $repository = '';
+        $site = '';
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+        if (isset($arguments['repository'])) {
+            $repository = $arguments['repository'];
+        }
+        if (isset($arguments['site'])) {
+            $site = $arguments['site'];
+        }
+
+        $path = self::getSitePath($site);
+
+        $repositoryPath = self::getRepositoryPath($path, $repository);
+        chdir($repositoryPath);
+
+        $log = self::executeCommand('git branch -r');
+        $lines = explode(PHP_EOL, $log);
+        array_pop($lines);
+
+        if ($format === 'json') {
+            self::sendJsonResponse($lines);
+        }
+
+        return $lines;
+    }
+
+    /**
      * Find Git repositories in site root four levels deep
      *
      * @var array $arguments
@@ -94,6 +132,52 @@ class GitRepositoryController extends AbstractController
         }
 
         return $filteredRepositories;
+    }
+
+    /**
+     * Pull git repository
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function pullAction($arguments = array())
+    {
+        $branch = '';
+        $format = '';
+        $remote = '';
+        $repository = '';
+        $site = '';
+        if (isset($arguments['branch'])) {
+            $branch = $arguments['branch'];
+        }
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+        if (isset($arguments['remote'])) {
+            $remote = $arguments['remote'];
+        }
+        if (isset($arguments['repository'])) {
+            $repository = $arguments['repository'];
+        }
+        if (isset($arguments['site'])) {
+            $site = $arguments['site'];
+        }
+
+        $path = self::getSitePath($site);
+
+        $repositoryPath = self::getRepositoryPath($path, $repository);
+        chdir($repositoryPath);
+
+        $log = self::executeCommand('git pull ' . $remote . ' ' . $branch);
+        $lines = explode(PHP_EOL, $log);
+        array_pop($lines);
+
+        if ($format === 'json') {
+            self::sendJsonResponse($lines);
+        }
+
+        return $lines;
     }
 
     /**
@@ -196,4 +280,43 @@ class GitRepositoryController extends AbstractController
 
         return $commits;
     }
+
+    /**
+     * Show git tags
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function tagAction($arguments = array())
+    {
+        $format = '';
+        $repository = '';
+        $site = '';
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+        if (isset($arguments['repository'])) {
+            $repository = $arguments['repository'];
+        }
+        if (isset($arguments['site'])) {
+            $site = $arguments['site'];
+        }
+
+        $path = self::getSitePath($site);
+
+        $repositoryPath = self::getRepositoryPath($path, $repository);
+        chdir($repositoryPath);
+
+        $log = self::executeCommand('git tag');
+        $lines = explode(PHP_EOL, $log);
+        array_pop($lines);
+
+        if ($format === 'json') {
+            self::sendJsonResponse($lines);
+        }
+
+        return $lines;
+    }
+
 }

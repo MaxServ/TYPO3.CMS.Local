@@ -1,16 +1,28 @@
 # routes.yml
 sites:
-    path:     /site/list
-    defaults: { controller: '\MaxServ\Typo3Local\SiteController', action: 'listAction', format: 'json' }
+  path:     /site/list
+  defaults: { controller: '\MaxServ\Typo3Local\SiteController', action: 'listAction', format: 'json' }
+
+gitBranch:
+  path:     /git/branch/{site}/{repository}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'branchAction', format: 'json' }
 
 gitRepositories:
-    path:     /git/list/{site}
-    defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'listAction', format: 'json' }
+  path:     /git/list/{site}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'listAction', format: 'json' }
+
+gitPull:
+  path:     /git/pull/{site}/{repository}/{remote}/{branch}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'pullAction', format: 'json', remote: 'origin', branch: 'master' }
 
 gitStatus:
-    path:     /git/status/{site}/{repository}/{range}/{detail}
-    defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'statusAction', format: 'json', range: '1', detail: 'oneline' }
+  path:     /git/status/{site}/{repository}/{range}/{detail}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'statusAction', format: 'json', range: '1', detail: 'oneline' }
+
+gitTag:
+  path:     /git/tag/{site}/{repository}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'tagAction', format: 'json' }
 
 version:
-    path:     /version
-    defaults: { controller: '\MaxServ\Typo3Local\VersionController', action: 'listAction', format: 'json' }
+  path:     /version
+  defaults: { controller: '\MaxServ\Typo3Local\VersionController', action: 'listAction', format: 'json' }

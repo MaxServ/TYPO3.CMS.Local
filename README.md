@@ -29,6 +29,29 @@ Will return a json object containing the TYPO3 sites found in `/var/www`.
 
 ### Git repository controller
 
+### Branch
+`/git/branch/review.local.typo3.org/typo3_src`
+
+Will return the list of available remote branches.
+```
+{
+  "status": "OK",
+  "data": [
+		"  composer/TYPO3_3-6",
+		"  composer/TYPO3_3-7",
+		"  composer/TYPO3_3-8",
+		"  composer/TYPO3_4-0",
+		"  composer/TYPO3_4-1",
+		"  composer/TYPO3_4-2",
+		"  composer/TYPO3_4-3",
+		"  composer/TYPO3_4-4",
+		"  composer/TYPO3_4-5",
+		"  composer/TYPO3_4-6",
+		...
+  ]
+}
+```
+
 #### List
 `/git/list/review.local.typo3.org`
 
@@ -161,6 +184,47 @@ Will return the last 2 commit messages in full format.
 	]
 }
 ```
+
+### Pull
+`/git/pull/review.local.typo3.org/typo3_src`
+
+Will return the result of the pull command (defaults to origin master).
+```
+{
+  "status": "OK",
+  "data": [
+    "Already up-to-date.",
+    "From https://git.typo3.org/Packages/TYPO3.CMS",
+    " * branch            master     -> FETCH_HEAD",
+  ]
+}
+```
+
+You may specify remote and branch parameters:
+`/git/pull/review.local.typo3.org/typo3_src/{remote}/{branch}`
+
+### Tag
+`/git/tag/review.local.typo3.org/typo3_src`
+
+Will return the list of available tags.
+```
+{
+  "status": "OK",
+  "data": [
+		"6.2.0",
+		"6.2.1",
+		"6.2.10",
+		"6.2.10-rc1",
+		"6.2.11",
+		"6.2.12",
+		"6.2.13",
+		"6.2.14",
+		"6.2.15",
+		...
+  ]
+}
+```
+
 ## Version controller
 `/version`
 
