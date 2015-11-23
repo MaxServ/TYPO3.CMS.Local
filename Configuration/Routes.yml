@@ -1,0 +1,8 @@
+# routes.yml
+sites:
+    path:     /site/list
+    defaults: { controller: '\MaxServ\Typo3Local\SiteController', action: 'listAction', format: 'json' }
+
+gitRepositories:
+    path:     /git/list/{site}
+    defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'listAction', format: 'json' }

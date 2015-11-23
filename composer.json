@@ -1,0 +1,29 @@
+{
+  "name": "maxserv/typo3local",
+  "type": "typo3-cms-local",
+  "description": "Manage locally installed sites",
+  "license": [
+    "GPL-2.0+"
+  ],
+  "keywords": [
+    "TYPO3 CMS",
+    "local"
+  ],
+  "support": {
+  },
+  "version": "1.0.1",
+  "autoload": {
+    "psr-4": {
+      "MaxServ\\Typo3Local\\": "Classes"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true
+  },
+  "require": {
+    "symfony/config": "^2.7",
+    "symfony/http-foundation": "^2.7",
+    "symfony/routing": "^2.7",
+    "symfony/yaml": "^2.7"
+  }
+}
