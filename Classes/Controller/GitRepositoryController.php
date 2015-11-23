@@ -44,10 +44,10 @@ class GitRepositoryController
         $format = '';
         $site = '';
         if (isset($arguments['format'])) {
-            $format = $arguments['format'] ?: '';
+            $format = $arguments['format'];
         }
         if (isset($arguments['site'])) {
-            $site = $arguments['site'] ?: '';
+            $site = $arguments['site'];
         }
 
         // Prevent sneaky back path hacks
@@ -60,10 +60,15 @@ class GitRepositoryController
         );
         $filteredRepositories = array();
         foreach ($gitRepositories as $repository) {
-            if (!strstr($repository, 'local.neos.io')) {
-                if (is_dir($repository)) {
-                    $filteredRepositories[] = str_replace(array($path . '/', '/.git'), '', $repository);
-                }
+            if (!strstr($repository, 'local.neos.io') && is_dir($repository)) {
+                $filteredRepositories[] = str_replace(
+                    array(
+                        $path . '/',
+                        '/.git'
+                    ),
+                    '',
+                    $repository
+                );
             }
         }
 
