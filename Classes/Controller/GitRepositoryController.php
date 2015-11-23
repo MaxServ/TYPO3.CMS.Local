@@ -62,7 +62,7 @@ class GitRepositoryController
         foreach ($gitRepositories as $repository) {
             if (!strstr($repository, 'local.neos.io')) {
                 if (is_dir($repository)) {
-                    $filteredRepositories[] = str_replace($path . '/', '', $repository);
+                    $filteredRepositories[] = str_replace(array($path . '/', '/.git'), '', $repository);
                 }
             }
         }
