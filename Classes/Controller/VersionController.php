@@ -24,12 +24,19 @@ namespace MaxServ\Typo3Local;
  */
 
 /**
- * Class SiteController
+ * Class VersionController
  *
  * @package MaxServ\Typo3Local
  */
-class SiteController extends AbstractController
+class VersionController extends AbstractController
 {
+    /**
+     * Version
+     *
+     * @var string
+     */
+    protected static $version = '1.0.0';
+
     /**
      * Find TYPO3 sites
      *
@@ -43,36 +50,11 @@ class SiteController extends AbstractController
         if (isset($arguments['format'])) {
             $format = $arguments['format'] ?: '';
         }
-        $sites = scandir(REVIEW_DOCUMENT_ROOT . '/..');
-        $exclude = array(
-            '.',
-            '..',
-            'html',
-            'local.typo3.org'
-        );
-        $typo3Sites = array();
-        foreach ($sites as $site) {
-            $pathToTypo3 = REVIEW_DOCUMENT_ROOT . '/../' . $site . '/typo3/';
-            if (!in_array($site, $exclude)) {
-                if (!strstr($site, 'local.neos.io')) {
-                    if (is_dir($pathToTypo3)) {
-                        $typo3Sites[] = $site;
-                    }
-                    if (is_link($pathToTypo3) &&
-                        readlink($pathToTypo3) &&
-                        is_dir(readlink($pathToTypo3))
-                    ) {
-                        $typo3Sites[] = $site;
-                    }
-                }
-            }
-
-        }
 
         if ($format === 'json') {
-            self::sendJsonResponse($typo3Sites);
+            self::sendJsonResponse(self::$version);
         }
 
-        return $typo3Sites;
+        return self::$version;
     }
 }

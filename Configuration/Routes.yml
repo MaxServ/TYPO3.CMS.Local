@@ -6,3 +6,11 @@ sites:
 gitRepositories:
     path:     /git/list/{site}
     defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'listAction', format: 'json' }
+
+gitStatus:
+    path:     /git/status/{site}/{repository}
+    defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'statusAction', format: 'json' }
+
+version:
+    path:     /version
+    defaults: { controller: '\MaxServ\Typo3Local\VersionController', action: 'listAction', format: 'json' }

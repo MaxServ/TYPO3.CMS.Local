@@ -23,15 +23,34 @@ namespace MaxServ\Typo3Local;
  *  This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use Symfony\Component\HttpFoundation\JsonResponse;
-
 /**
  * Class GitRepositoryController
  *
  * @package MaxServ\Typo3Local
  */
-class GitRepositoryController
+class GitRepositoryController extends AbstractController
 {
+    /**
+     * Get repository path
+     *
+     * Slashes in the url are encoded as exclamation marks
+     *
+     * @var string $basePath
+     * @var string $repository
+     *
+     * @return array
+     */
+    protected static function getRepositoryPath($basePath = '', $repository = '')
+    {
+        $repository = str_replace(array('%21', '!'), '/', $repository);
+
+        $path = realpath($basePath . '/' . $repository);
+        if (!strpos($path, $basePath) === 0) {
+            $path = $basePath;
+        }
+        return $path;
+    }
+
     /**
      * Find Git repositories in site root four levels deep
      *
@@ -50,10 +69,8 @@ class GitRepositoryController
             $site = $arguments['site'];
         }
 
-        // Prevent sneaky back path hacks
-        $site = basename($site);
+        $path = self::getSitePath($site);
 
-        $path = realpath(REVIEW_DOCUMENT_ROOT . '/../' . $site);
         $gitRepositories = glob(
             $path . '/{**,**/**,**/**/**,**/**/**/**}/.git',
             GLOB_BRACE | GLOB_ONLYDIR
@@ -73,10 +90,44 @@ class GitRepositoryController
         }
 
         if ($format === 'json') {
-            $response = new JsonResponse($filteredRepositories);
-            $response->send();
+            self::sendJsonResponse($filteredRepositories);
         }
 
         return $filteredRepositories;
+    }
+
+    /**
+     * Return git status
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function statusAction($arguments = array())
+    {
+        $format = '';
+        $repository = '';
+        $site = '';
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+        if (isset($arguments['site'])) {
+            $site = $arguments['site'];
+        }
+        if (isset($arguments['repository'])) {
+            $repository = $arguments['repository'];
+        }
+
+        $path = self::getSitePath($site);
+
+        $repositoryPath = self::getRepositoryPath($path, $repository);
+        chdir($repositoryPath);
+        $log = self::executeCommand('git log -1 --oneline');
+
+        if ($format === 'json') {
+            self::sendJsonResponse($log);
+        }
+
+        return $log;
     }
 }
