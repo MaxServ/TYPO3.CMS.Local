@@ -31,13 +31,6 @@ namespace MaxServ\Typo3Local;
 class VersionController extends AbstractController
 {
     /**
-     * Version
-     *
-     * @var string
-     */
-    protected static $version = '1.0.0';
-
-    /**
      * Find TYPO3 sites
      *
      * @var array $arguments

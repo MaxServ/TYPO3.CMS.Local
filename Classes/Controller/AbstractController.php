@@ -33,6 +33,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class AbstractController
 {
     /**
+     * TYPO3 Manager version
+     *
+     * @var string
+     */
+    protected static $version = '1.0.0';
+
+    /**
      * Execute Command
      *
      * @param $command
