@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class GitRepositoryController
 {
     /**
-     * Find Git repositories in site
+     * Find Git repositories in site root four levels deep
      *
      * @var array $arguments
      *
