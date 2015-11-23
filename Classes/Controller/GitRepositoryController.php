@@ -90,6 +90,52 @@ class GitRepositoryController extends AbstractController
     }
 
     /**
+     * Fetch changes for git repository
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function fetchAction($arguments = array())
+    {
+        $branch = '';
+        $format = '';
+        $remote = '';
+        $repository = '';
+        $site = '';
+        if (isset($arguments['branch'])) {
+            $branch = $arguments['branch'];
+        }
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+        if (isset($arguments['remote'])) {
+            $remote = $arguments['remote'];
+        }
+        if (isset($arguments['repository'])) {
+            $repository = $arguments['repository'];
+        }
+        if (isset($arguments['site'])) {
+            $site = $arguments['site'];
+        }
+
+        $path = self::getSitePath($site);
+
+        $repositoryPath = self::getRepositoryPath($path, $repository);
+        chdir($repositoryPath);
+
+        $log = self::executeCommand('git fetch ' . $remote . ' ' . $branch);
+        $lines = explode(PHP_EOL, $log);
+        array_pop($lines);
+
+        if ($format === 'json') {
+            self::sendJsonResponse($lines);
+        }
+
+        return $lines;
+    }
+
+    /**
      * Find Git repositories in site root four levels deep
      *
      * @var array $arguments
@@ -170,6 +216,52 @@ class GitRepositoryController extends AbstractController
         chdir($repositoryPath);
 
         $log = self::executeCommand('git pull ' . $remote . ' ' . $branch);
+        $lines = explode(PHP_EOL, $log);
+        array_pop($lines);
+
+        if ($format === 'json') {
+            self::sendJsonResponse($lines);
+        }
+
+        return $lines;
+    }
+
+    /**
+     * Reset git repository
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function resetAction($arguments = array())
+    {
+        $branch = '';
+        $format = '';
+        $remote = '';
+        $repository = '';
+        $site = '';
+        if (isset($arguments['branch'])) {
+            $branch = $arguments['branch'];
+        }
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+        if (isset($arguments['remote'])) {
+            $remote = $arguments['remote'];
+        }
+        if (isset($arguments['repository'])) {
+            $repository = $arguments['repository'];
+        }
+        if (isset($arguments['site'])) {
+            $site = $arguments['site'];
+        }
+
+        $path = self::getSitePath($site);
+
+        $repositoryPath = self::getRepositoryPath($path, $repository);
+        chdir($repositoryPath);
+
+        $log = self::executeCommand('git reset --hard ' . $remote . '/' . $branch);
         $lines = explode(PHP_EOL, $log);
         array_pop($lines);
 

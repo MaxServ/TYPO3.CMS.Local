@@ -7,6 +7,10 @@ gitBranch:
   path:     /git/branch/{site}/{repository}
   defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'branchAction', format: 'json' }
 
+gitFetch:
+  path:     /git/fetch/{site}/{repository}/{remote}/{branch}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'fetchAction', format: 'json', remote: 'origin', branch: 'master' }
+
 gitRepositories:
   path:     /git/list/{site}
   defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'listAction', format: 'json' }
@@ -14,6 +18,10 @@ gitRepositories:
 gitPull:
   path:     /git/pull/{site}/{repository}/{remote}/{branch}
   defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'pullAction', format: 'json', remote: 'origin', branch: 'master' }
+
+gitReset:
+  path:     /git/reset/{site}/{repository}/{remote}/{branch}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'resetAction', format: 'json', remote: 'origin', branch: 'master' }
 
 gitStatus:
   path:     /git/status/{site}/{repository}/{range}/{detail}

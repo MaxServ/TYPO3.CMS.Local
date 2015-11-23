@@ -52,6 +52,27 @@ Will return the list of available remote branches.
 }
 ```
 
+### Fetch
+`/git/fetch/review.local.typo3.org/typo3_src`
+
+Will fetch changes from origin/master.
+
+```
+{
+	"status": "OK",
+	"data": [
+		"remote: Counting objects: 61, done.",
+		"remote: Compressing objects: 100% (36/36), done.",
+		"remote: Total 37 (delta 29), reused 0 (delta 0)",
+		"Unpacking objects: 100% (37/37), done.",
+		"From https://git.typo3.org/Packages/TYPO3.CMS",
+		"   1053983..d050733  TYPO3_6-2  -> origin/TYPO3_6-2"
+	]
+}
+```
+You may specify remote and branch parameters:
+`/git/fetch/review.local.typo3.org/typo3_src/{remote}/{branch}`
+
 #### List
 `/git/list/review.local.typo3.org`
 
@@ -100,6 +121,22 @@ Will return a json object containing all the git repositories found in the given
 	]
 }
 ```
+
+### Reset
+`/git/reset/review.local.typo3.org/typo3_src`
+
+Will hard reset the git repository to origin/master.
+
+```
+{
+	"status": "OK",
+	"data": [
+		"HEAD is now at 2dddc23 [BUGFIX] Fix broken unit tests for system with e.g. german locale"
+	]
+}
+```
+You may specify remote and branch parameters:
+`/git/reset/review.local.typo3.org/typo3_src/{remote}/{branch}`
 
 ### Status
 `/git/status/review.local.typo3.org/vendor!mikey179!vfsStream`
