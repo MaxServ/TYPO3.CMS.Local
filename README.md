@@ -52,6 +52,20 @@ Will return the list of available remote branches.
 }
 ```
 
+### Clean
+`/git/clean/review.local.typo3.org/typo3_src`
+
+Will clean a git repository.
+
+```
+{
+	"status": "OK",
+	"data": [
+		"Removing vendor/"
+	]
+}
+```
+
 ### Fetch
 `/git/fetch/review.local.typo3.org/typo3_src`
 
@@ -276,5 +290,4 @@ Will return the current TYPO3 manager version.
 
 ## TODO
 
-* Add more routes
-* Write more documentation
+* Add composer routes

@@ -7,6 +7,10 @@ gitBranch:
   path:     /git/branch/{site}/{repository}
   defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'branchAction', format: 'json' }
 
+gitClean:
+  path:     /git/clean/{site}/{repository}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'cleanAction', format: 'json' }
+
 gitFetch:
   path:     /git/fetch/{site}/{repository}/{remote}/{branch}
   defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'fetchAction', format: 'json', remote: 'origin', branch: 'master' }

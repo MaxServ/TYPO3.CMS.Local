@@ -90,6 +90,44 @@ class GitRepositoryController extends AbstractController
     }
 
     /**
+     * Clean git repository
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function cleanAction($arguments = array())
+    {
+        $format = '';
+        $repository = '';
+        $site = '';
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+        if (isset($arguments['repository'])) {
+            $repository = $arguments['repository'];
+        }
+        if (isset($arguments['site'])) {
+            $site = $arguments['site'];
+        }
+
+        $path = self::getSitePath($site);
+
+        $repositoryPath = self::getRepositoryPath($path, $repository);
+        chdir($repositoryPath);
+
+        $log = self::executeCommand('git clean -df');
+        $lines = explode(PHP_EOL, $log);
+        array_pop($lines);
+
+        if ($format === 'json') {
+            self::sendJsonResponse($lines);
+        }
+
+        return $lines;
+    }
+
+    /**
      * Fetch changes for git repository
      *
      * @var array $arguments
