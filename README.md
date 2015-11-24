@@ -87,6 +87,46 @@ Will fetch changes from origin/master.
 You may specify remote and branch parameters:
 `/git/fetch/review.local.typo3.org/typo3_src/{remote}/{branch}`
 
+### Get user.email
+`/git/getuseremail`
+
+Will fetch user.email configuration value.
+```
+{
+	"status": "OK",
+	"data": "michiel@noreply.org"
+}
+```
+### Set user.email
+`/git/setuseremail/michiel@noreply.org`
+
+Will globally set the user.email configuration value.
+```
+{
+	"status": "OK",
+	"data": ""
+}
+```
+### Get user.name
+`/git/getusername`
+
+Will fetch user.name configuration value.
+```
+{
+	"status": "OK",
+	"data": "Michiel Roos"
+}
+```
+### Set user.name
+`/git/setusername/Pietje%20Puk`
+
+Will globally set the user.name configuration value.
+```
+{
+	"status": "OK",
+	"data": ""
+}
+```
 #### List
 `/git/list/review.local.typo3.org`
 
@@ -291,3 +331,4 @@ Will return the current TYPO3 manager version.
 ## TODO
 
 * Add composer routes
+* Add phpunit routes

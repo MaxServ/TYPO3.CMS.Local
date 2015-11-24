@@ -80,7 +80,6 @@ class GitRepositoryController extends AbstractController
 
         $log = self::executeCommand('git branch -r');
         $lines = explode(PHP_EOL, $log);
-        array_pop($lines);
 
         if ($format === 'json') {
             self::sendJsonResponse($lines);
@@ -118,7 +117,6 @@ class GitRepositoryController extends AbstractController
 
         $log = self::executeCommand('git clean -df');
         $lines = explode(PHP_EOL, $log);
-        array_pop($lines);
 
         if ($format === 'json') {
             self::sendJsonResponse($lines);
@@ -164,13 +162,58 @@ class GitRepositoryController extends AbstractController
 
         $log = self::executeCommand('git fetch ' . $remote . ' ' . $branch);
         $lines = explode(PHP_EOL, $log);
-        array_pop($lines);
 
         if ($format === 'json') {
             self::sendJsonResponse($lines);
         }
 
         return $lines;
+    }
+
+    /**
+     * Get user.email
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function getUserEmailAction($arguments = array())
+    {
+        $format = '';
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+
+        $userEmail = self::executeCommand('git config --get user.email');
+
+        if ($format === 'json') {
+            self::sendJsonResponse($userEmail);
+        }
+
+        return $userEmail;
+    }
+
+    /**
+     * Get user.name
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function getUserNameAction($arguments = array())
+    {
+        $format = '';
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+
+        $userName = self::executeCommand('git config --get user.name');
+
+        if ($format === 'json') {
+            self::sendJsonResponse($userName);
+        }
+
+        return $userName;
     }
 
     /**
@@ -255,7 +298,6 @@ class GitRepositoryController extends AbstractController
 
         $log = self::executeCommand('git pull ' . $remote . ' ' . $branch);
         $lines = explode(PHP_EOL, $log);
-        array_pop($lines);
 
         if ($format === 'json') {
             self::sendJsonResponse($lines);
@@ -301,13 +343,66 @@ class GitRepositoryController extends AbstractController
 
         $log = self::executeCommand('git reset --hard ' . $remote . '/' . $branch);
         $lines = explode(PHP_EOL, $log);
-        array_pop($lines);
 
         if ($format === 'json') {
             self::sendJsonResponse($lines);
         }
 
         return $lines;
+    }
+
+    /**
+     * Set user.name
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function setUserNameAction($arguments = array())
+    {
+        $format = '';
+        $userName = '';
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+        if (isset($arguments['userName'])) {
+            $userName = $arguments['userName'];
+        }
+
+        $userName = self::executeCommand('git config --global --replace-all user.name "' . addslashes($userName) . '"');
+
+        if ($format === 'json') {
+            self::sendJsonResponse($userName);
+        }
+
+        return $userName;
+    }
+
+    /**
+     * Set user.email
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function setUserEmailAction($arguments = array())
+    {
+        $format = '';
+        $userEmail = '';
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+        if (isset($arguments['userEmail'])) {
+            $userEmail = $arguments['userEmail'];
+        }
+
+        $userEmail = self::executeCommand('git config --global --replace-all user.email "' . addslashes($userEmail) . '"');
+
+        if ($format === 'json') {
+            self::sendJsonResponse($userEmail);
+        }
+
+        return $userEmail;
     }
 
     /**
@@ -353,7 +448,6 @@ class GitRepositoryController extends AbstractController
         if ($detail === '--oneline') {
             $log = self::executeCommand('git log -' . $range . ' ' . $detail);
             $lines = explode(PHP_EOL, $log);
-            array_pop($lines);
             foreach ($lines as $line) {
                 list($sha1, $subject) = explode(' ', $line, 2);
                 $commit = new \stdClass();
@@ -440,7 +534,6 @@ class GitRepositoryController extends AbstractController
 
         $log = self::executeCommand('git tag');
         $lines = explode(PHP_EOL, $log);
-        array_pop($lines);
 
         if ($format === 'json') {
             self::sendJsonResponse($lines);

@@ -15,6 +15,22 @@ gitFetch:
   path:     /git/fetch/{site}/{repository}/{remote}/{branch}
   defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'fetchAction', format: 'json', remote: 'origin', branch: 'master' }
 
+gitGetUserEmail:
+  path:     /git/getuseremail
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'getUserEmailAction', format: 'json' }
+
+gitSetUserEmail:
+  path:     /git/setuseremail/{userEmail}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'setUserEmailAction', format: 'json' }
+
+gitGetUserName:
+  path:     /git/getusername
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'getUserNameAction', format: 'json' }
+
+gitSetUserName:
+  path:     /git/setusername/{userName}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'setUserNameAction', format: 'json' }
+
 gitRepositories:
   path:     /git/list/{site}
   defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'listAction', format: 'json' }

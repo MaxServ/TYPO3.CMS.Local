@@ -72,6 +72,8 @@ class AbstractController
         fclose($inputOutput[2]);
         proc_close($process);
 
+        $output = rtrim($output, PHP_EOL);
+
         return $output;
     }
 
