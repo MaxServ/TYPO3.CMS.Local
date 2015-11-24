@@ -178,7 +178,7 @@ Will globally set the user.name configuration value.
 	"data": ""
 }
 ```
-#### List
+### List
 `/git/list/review.local.typo3.org`
 
 Will return a json object containing all the git repositories found in the given site.
@@ -374,8 +374,8 @@ Will return the current TYPO3 manager version.
 
 ```
 {
-"status": "OK",
-"data": "1.0.0"
+	"status": "OK",
+	"data": "1.0.0"
 }
 ```
 
