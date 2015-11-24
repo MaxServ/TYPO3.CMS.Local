@@ -21,8 +21,25 @@ $context->fromRequest($request);
 
 $matcher = new UrlMatcher($routeCollection, $context);
 $params = $matcher->match($request->getPathInfo());
-call_user_func_array(array($params['controller'], $params['action']), array($params));
-
+$params['request'] = $request;
+if (isset($params['controller']) && isset($params['action'])) {
+    call_user_func_array(array($params['controller'], $params['action']), array($params));
+}
+//$availableApiRoutes = [];
+//foreach ($routeCollection as $name => $route) {
+//    $route = $route->compile();
+//    if( strpos($name, "api_") !== 0 ){
+//        $emptyVars = [];
+//        foreach( $route->getVariables() as $v ){
+//            $emptyVars[ $v ] = $v;
+//        }
+//        $url = $this->generateUrl( $name, $emptyVars );
+//        $availableApiRoutes[] = ["name" => $name, "url" => $url, "variables" => $route->getVariables()];
+//    }
+//}
+//
+//$dump = $availableApiRoutes; echo '<xmp style="position: relative; z-index: 1000; background: #fefefe; border: 1px solid #ccc; padding: 6px; margin: 6px; box-shadow: 6px 6px 4px #888; border-radius: 4px;">' . var_export ($dump, TRUE) . '</xmp>'; die();
+//
 ?>
 <!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">

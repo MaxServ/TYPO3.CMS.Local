@@ -24,7 +24,7 @@ namespace MaxServ\Typo3Local;
  */
 
 /**
- * Class GitRepositoryController
+ * Class Git Repository Controller
  *
  * @package MaxServ\Typo3Local
  */
@@ -88,6 +88,48 @@ class GitRepositoryController extends AbstractController
         return $lines;
     }
 
+    /**
+     * Checkout a change from a git repository
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function checkoutAction($arguments = array())
+    {
+        $change = '';
+        $format = '';
+        $repository = '';
+        $site = '';
+        if (isset($arguments['change'])) {
+            $change = $arguments['change'];
+            $change = str_replace(array('%21', '!'), '/', $change);
+        }
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+        if (isset($arguments['repository'])) {
+            $repository = $arguments['repository'];
+        }
+        if (isset($arguments['site'])) {
+            $site = $arguments['site'];
+        }
+
+        $path = self::getSitePath($site);
+
+        $repositoryPath = self::getRepositoryPath($path, $repository);
+        chdir($repositoryPath);
+
+        $log = self::executeCommand('git checkout ' . escapeshellcmd($change));
+        $lines = explode(PHP_EOL, $log);
+
+        if ($format === 'json') {
+            self::sendJsonResponse($lines);
+        }
+
+        return $lines;
+    }
+    
     /**
      * Clean git repository
      *
@@ -160,7 +202,7 @@ class GitRepositoryController extends AbstractController
         $repositoryPath = self::getRepositoryPath($path, $repository);
         chdir($repositoryPath);
 
-        $log = self::executeCommand('git fetch ' . $remote . ' ' . $branch);
+        $log = self::executeCommand('git fetch ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
         $lines = explode(PHP_EOL, $log);
 
         if ($format === 'json') {
@@ -296,7 +338,52 @@ class GitRepositoryController extends AbstractController
         $repositoryPath = self::getRepositoryPath($path, $repository);
         chdir($repositoryPath);
 
-        $log = self::executeCommand('git pull ' . $remote . ' ' . $branch);
+        $log = self::executeCommand('git pull ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
+        $lines = explode(PHP_EOL, $log);
+
+        if ($format === 'json') {
+            self::sendJsonResponse($lines);
+        }
+
+        return $lines;
+    }
+
+    /**
+     * Chery Pick a commit
+     *
+     * @var array $arguments
+     *
+     * @return array
+     */
+    public static function pickAction($arguments = array())
+    {
+        $format = '';
+        $repository = '';
+        $site = '';
+        $fetchUrl = '';
+        $change = '';
+        if (isset($arguments['format'])) {
+            $format = $arguments['format'];
+        }
+        if (isset($arguments['repository'])) {
+            $repository = $arguments['repository'];
+        }
+        if (isset($arguments['site'])) {
+            $site = $arguments['site'];
+        }
+        if (isset($arguments['request'])) {
+            $fetchUrl = urldecode($arguments['request']->get('fetchUrl'));
+            $fetchUrl = escapeshellcmd($fetchUrl);
+            $change = urldecode($arguments['request']->get('change'));
+            $change = escapeshellcmd($change);
+        }
+
+        $path = self::getSitePath($site);
+
+        $repositoryPath = self::getRepositoryPath($path, $repository);
+        chdir($repositoryPath);
+
+        $log = self::executeCommand('git fetch ' . $fetchUrl . ' ' . $change . ' && git cherry-pick FETCH_HEAD');
         $lines = explode(PHP_EOL, $log);
 
         if ($format === 'json') {
@@ -341,7 +428,7 @@ class GitRepositoryController extends AbstractController
         $repositoryPath = self::getRepositoryPath($path, $repository);
         chdir($repositoryPath);
 
-        $log = self::executeCommand('git reset --hard ' . $remote . '/' . $branch);
+        $log = self::executeCommand('git reset --hard ' . escapeshellcmd($remote) . '/' . escapeshellcmd($branch));
         $lines = explode(PHP_EOL, $log);
 
         if ($format === 'json') {
@@ -369,7 +456,9 @@ class GitRepositoryController extends AbstractController
             $userName = $arguments['userName'];
         }
 
-        $userName = self::executeCommand('git config --global --replace-all user.name "' . addslashes($userName) . '"');
+        $userName = str_replace('%20', ' ', $userName);
+
+        $userName = self::executeCommand('git config --global --replace-all user.name ' . escapeshellarg($userName));
 
         if ($format === 'json') {
             self::sendJsonResponse($userName);
@@ -396,7 +485,7 @@ class GitRepositoryController extends AbstractController
             $userEmail = $arguments['userEmail'];
         }
 
-        $userEmail = self::executeCommand('git config --global --replace-all user.email "' . addslashes($userEmail) . '"');
+        $userEmail = self::executeCommand('git config --global --replace-all user.email ' . escapeshellarg($userEmail));
 
         if ($format === 'json') {
             self::sendJsonResponse($userEmail);
@@ -541,5 +630,4 @@ class GitRepositoryController extends AbstractController
 
         return $lines;
     }
-
 }

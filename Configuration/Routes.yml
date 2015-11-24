@@ -11,6 +11,10 @@ gitClean:
   path:     /git/clean/{site}/{repository}
   defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'cleanAction', format: 'json' }
 
+gitCheckout:
+  path:     /git/checkout/{site}/{repository}/{change}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'checkoutAction', format: 'json' }
+
 gitFetch:
   path:     /git/fetch/{site}/{repository}/{remote}/{branch}
   defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'fetchAction', format: 'json', remote: 'origin', branch: 'master' }
@@ -31,13 +35,17 @@ gitSetUserName:
   path:     /git/setusername/{userName}
   defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'setUserNameAction', format: 'json' }
 
-gitRepositories:
-  path:     /git/list/{site}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'listAction', format: 'json' }
+gitPick:
+  path:     /git/pick/{site}/{repository}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'pickAction', format: 'json' }
 
 gitPull:
   path:     /git/pull/{site}/{repository}/{remote}/{branch}
   defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'pullAction', format: 'json', remote: 'origin', branch: 'master' }
+
+gitRepositories:
+  path:     /git/list/{site}
+  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'listAction', format: 'json' }
 
 gitReset:
   path:     /git/reset/{site}/{repository}/{remote}/{branch}
@@ -54,3 +62,6 @@ gitTag:
 version:
   path:     /version
   defaults: { controller: '\MaxServ\Typo3Local\VersionController', action: 'listAction', format: 'json' }
+
+default:
+  path:     /

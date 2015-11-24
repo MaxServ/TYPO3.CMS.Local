@@ -51,6 +51,57 @@ Will return the list of available remote branches.
   ]
 }
 ```
+### Checkout
+
+### By change
+`/git/checkout/7.4.0.local.typo3.org/typo3_src/a2585ba`
+
+Will checkout the given hash.
+
+```
+{
+  "status": "OK",
+  "data": [
+    "Previous HEAD position was 10b2f0c... [BUGFIX] Save parents localized uid as child reference",
+    "HEAD is now at a2585ba... [RELEASE] Release of TYPO3 7.6.0"
+  ]
+}
+```
+
+#### By branch
+`/git/checkout/7.4.0.local.typo3.org/typo3_src/origin!master`
+
+Will checkout the given branch.
+
+```
+{
+  "status": "OK",
+  "data": [
+    "Previous HEAD position was a2585ba... [RELEASE] Release of TYPO3 7.6.0",
+    "HEAD is now at 10b2f0c... [BUGFIX] Save parents localized uid as child reference"
+  ]
+}
+```
+
+#### By tag
+`/git/checkout/7.4.0.local.typo3.org/typo3_src/7.6.0`
+
+Will checkout the given tag.
+
+```
+{
+  "status": "OK",
+  "data": [
+    "Previous HEAD position was 10b2f0c... [BUGFIX] Save parents localized uid as child reference",
+    "HEAD is now at a2585ba... [RELEASE] Release of TYPO3 7.6.0"
+  ]
+}
+```
+
+### Cherry Pick
+`/git/pick/7.4.0.local.typo3.org/typo3_src?fetchUrl=https%3A%2F%2Freview.typo3.org%2FPackages%2FTYPO3.CMS&change=refs%2Fchanges%2F83%2F43483%2F13%0A`
+
+Will cherry pick from the given fetchUrl using the given change. Both the fetchUrl and the change should be urlEncoded.
 
 ### Clean
 `/git/clean/review.local.typo3.org/typo3_src`
