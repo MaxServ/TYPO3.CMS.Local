@@ -84,7 +84,7 @@ class AbstractController extends Controller
         if ($mode === 'live') {
             $process->run(function ($type, $buffer) {
                 if (Process::ERR === $type) {
-                    //                echo 'ERR ' . $buffer;
+                    $this->fail($buffer);
                 } else {
                     echo 'OUT ' . $buffer;
                 }
@@ -142,7 +142,7 @@ class AbstractController extends Controller
     protected function changeDirectory($directory)
     {
         if (!is_dir($directory)) {
-            $this->fail('Directory \'' . htmlspecialchars($directory) . '\' does not exist.');
+            $this->fail('Directory does not exist.');
         }
 
         return chdir($directory);
