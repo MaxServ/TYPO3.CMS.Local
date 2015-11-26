@@ -64,13 +64,6 @@ class AbstractController extends Controller
     protected $errorMessages = array();
 
     /**
-     * Object containing information on the failed process
-     *
-     * @var Process
-     */
-    protected $failedProcess;
-
-    /**
      * TYPO3 Manager version
      *
      * @var string
@@ -106,32 +99,22 @@ class AbstractController extends Controller
             }
         }
 
-        $this->failedProcess = $process;
-        $this->commandStatus = self::STATUS_ERROR;
+        $this->fail($process->getErrorOutput());
 
         return false;
     }
 
     /**
-     * Add an error message
+     * Fail the command
      *
      * @param string $message
      *
      * @return void
      */
-    protected function addErrorMessage($message)
-    {
-        $this->errorMessages[] = $message;
-    }
-
-    /**
-     * Fail the command
-     *
-     * @return void
-     */
-    protected function fail()
+    protected function fail($message)
     {
         $this->commandStatus = self::STATUS_ERROR;
+        $this->errorMessages[] = $message;
     }
 
     /**
@@ -159,8 +142,7 @@ class AbstractController extends Controller
     protected function changeDirectory($directory)
     {
         if (!is_dir($directory)) {
-            $this->fail();
-            $this->addErrorMessage('Directory \'' . htmlspecialchars($directory) . '\' does not exist.');
+            $this->fail('Directory \'' . htmlspecialchars($directory) . '\' does not exist.');
         }
 
         return chdir($directory);

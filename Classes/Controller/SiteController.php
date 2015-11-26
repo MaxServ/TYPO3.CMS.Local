@@ -98,13 +98,12 @@ class SiteController extends AbstractController
     {
         $sourcePath = $this->getSitePath($site) . '/typo3_src';
         if ($this->changeDirectory($sourcePath)) {
-            if (!$this->executeCommand($request, 'git reset --hard origin/master', 'live')) {
-                $this->fail();
-                $this->errorMessages[] = $this->failedProcess->getErrorOutput();
-            }
+            $this->executeCommand($request, 'git reset --hard origin/master', 'live');
         }
 
-        return new Response();
+        $response = new Response();
+        $response->prepare($request);
+        return $response;
     }
 
     /**

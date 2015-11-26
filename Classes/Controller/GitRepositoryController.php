@@ -470,8 +470,7 @@ class GitRepositoryController extends AbstractController
                     $commits = $commitData;
                 }
                 if (json_last_error()) {
-                    $this->commandStatus = self::STATUS_ERROR;
-                    $this->errorMessages[] = json_last_error_msg();
+                    $this->fail(json_last_error_msg());
                 }
             }
         }
