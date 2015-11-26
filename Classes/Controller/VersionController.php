@@ -22,6 +22,8 @@ namespace MaxServ\Typo3Local;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  */
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class VersionController
@@ -31,23 +33,17 @@ namespace MaxServ\Typo3Local;
 class VersionController extends AbstractController
 {
     /**
-     * Find TYPO3 sites
+     * Return current version
      *
-     * @var array $arguments
-     *
-     * @return array
+     * @return Response
      */
-    public static function listAction($arguments = array())
+    public function listAction(Request $request)
     {
-        $format = '';
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'] ?: '';
-        }
+        $data = $this->version;
+        $data = $this->prepareData($request, $data);
 
-        if ($format === 'json') {
-            self::sendJsonResponse(self::$version);
-        }
-
-        return self::$version;
+        $response = new Response($data);
+        $response->prepare($request);
+        return $response;
     }
 }

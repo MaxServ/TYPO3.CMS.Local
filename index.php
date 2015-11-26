@@ -5,26 +5,37 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use MaxServ\Typo3Local\SiteController;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Controller\ControllerResolver;
+use Symfony\Component\HttpKernel\EventListener\RouterListener;
+use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 
 $locator = new FileLocator(array(REVIEW_DOCUMENT_ROOT . '/Configuration'));
 $loader = new YamlFileLoader($locator);
-$routeCollection = $loader->load('Routes.yml');
+$routes = $loader->load('Routes.yml');
 
 $request = Request::createFromGlobals();
 
-$context = new RequestContext();
-$context->fromRequest($request);
+$matcher = new UrlMatcher($routes, new RequestContext());
 
-$matcher = new UrlMatcher($routeCollection, $context);
-$params = $matcher->match($request->getPathInfo());
-$params['request'] = $request;
-if (isset($params['controller']) && isset($params['action'])) {
-    call_user_func_array(array($params['controller'], $params['action']), array($params));
-}
+$dispatcher = new EventDispatcher();
+$dispatcher->addSubscriber(new RouterListener($matcher));
+
+$resolver = new ControllerResolver();
+$kernel = new HttpKernel($dispatcher, $resolver);
+
+$response = $kernel->handle($request);
+$response->send();
+
+$kernel->terminate($request, $response);
+
+//if (isset($params['_controller'])) {
+//    call_user_func_array(array($params['_controller'], $params['action']), array($params));
+//}
 //$availableApiRoutes = [];
 //foreach ($routeCollection as $name => $route) {
 //    $route = $route->compile();

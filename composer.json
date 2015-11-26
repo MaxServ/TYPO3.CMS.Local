@@ -21,8 +21,12 @@
     "optimize-autoloader": true
   },
   "require": {
+    "php": ">=5.3.3",
     "symfony/config": "^2.7",
+    "symfony/framework-bundle": "^2.7",
     "symfony/http-foundation": "^2.7",
+    "symfony/http-kernel": "^2.7",
+    "symfony/process": "^2.7",
     "symfony/routing": "^2.7",
     "symfony/yaml": "^2.7"
   }

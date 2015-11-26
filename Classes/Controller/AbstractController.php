@@ -23,58 +23,115 @@ namespace MaxServ\Typo3Local;
  *  This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Process\Process;
 
 /**
  * Class AbstractController
  *
  * @package MaxServ\Typo3Local
  */
-class AbstractController
+class AbstractController extends Controller
 {
+
+    /**
+     * Error status code
+     *
+     * @var string
+     */
+    const STATUS_ERROR = 'Error';
+
+    /**
+     * OK status code
+     *
+     * @var string
+     */
+    const STATUS_OK = 'OK';
+
+    /**
+     * Command status
+     *
+     * @var string
+     */
+    protected $commandStatus = self::STATUS_OK;
+
+    /**
+     * Error messages
+     *
+     * @var array
+     */
+    protected $errorMessages = array();
+
+    /**
+     * Object containing information on the failed process
+     *
+     * @var Process
+     */
+    protected $failedProcess;
+
     /**
      * TYPO3 Manager version
      *
      * @var string
      */
-    protected static $version = '1.0.0';
+    protected $version = '1.0.0';
 
     /**
      * Execute Command
      *
-     * @param $command
+     * @param string $command
+     * @param string $mode
      *
-     * @return string
+     * @return boolean|string
      */
-    protected static function executeCommand($command)
+    protected function executeCommand($command, $mode = 'asynchronous')
     {
-        $output = '';
-        $inputOutput = array();
-        $process = proc_open(
-            $command,
-            array(
-                1 => array('pipe', 'w'),
-                2 => array('pipe', 'w')
-            ),
-            $inputOutput
-        );
-
-        /* Read output sent to stdout. */
-        while (!feof($inputOutput[1])) {
-            $output .= fgets($inputOutput[1]);
+        $process = new Process($command);
+        if ($mode === 'live') {
+            $process->run(function ($type, $buffer) {
+                if (Process::ERR === $type) {
+                    //                echo 'ERR ' . $buffer;
+                } else {
+                    echo 'OUT ' . $buffer;
+                }
+            });
+            if ($process->isSuccessful()) {
+                return true;
+            }
+        } else {
+            $process->run();
+            if ($process->isSuccessful()) {
+                return rtrim($process->getOutput(), PHP_EOL);
+            }
         }
-        /* Read output sent to stderr. */
-        while (!feof($inputOutput[2])) {
-            $output .= fgets($inputOutput[2]);
-        }
 
-        fclose($inputOutput[1]);
-        fclose($inputOutput[2]);
-        proc_close($process);
+        $this->failedProcess = $process;
+        $this->commandStatus = self::STATUS_ERROR;
 
-        $output = rtrim($output, PHP_EOL);
+        return false;
+    }
 
-        return $output;
+    /**
+     * Add an error message
+     *
+     * @param string $message
+     *
+     * @return void
+     */
+    protected function addErrorMessage($message)
+    {
+        $this->errorMessages[] = $message;
+    }
+
+    /**
+     * Fail the command
+     *
+     * @return void
+     */
+    protected function fail()
+    {
+        $this->commandStatus = self::STATUS_ERROR;
     }
 
     /**
@@ -84,7 +141,7 @@ class AbstractController
      *
      * @return array
      */
-    protected static function getSitePath($site = '')
+    protected function getSitePath($site = '')
     {
         // Prevent sneaky back path hacks
         $site = basename($site);
@@ -93,19 +150,47 @@ class AbstractController
     }
 
     /**
-     * Send JSON response
+     * Change to directory
      *
-     * @var object|string|array $data
-     * @var string $status
+     * @var string $directory
      *
-     * @return array
+     * @return boolean
      */
-    protected static function sendJsonResponse($data = '', $status = 'OK')
+    protected function changeDirectory($directory)
     {
-        $object = new \stdClass();
-        $object->status = $status;
-        $object->data = $data;
-        $response = new JsonResponse($object);
-        $response->send();
+        if (!is_dir($directory)) {
+            $this->fail();
+            $this->addErrorMessage('Directory \'' . htmlspecialchars($directory) . '\' does not exist.');
+        }
+
+        return chdir($directory);
+    }
+
+    /**
+     * Prepare data
+     *
+     * @param Request $request
+     * @param mixed $data
+     *
+     * @return mixed $data
+     */
+    protected function prepareData(Request $request, $data)
+    {
+        if ($request->getRequestFormat() === 'json') {
+            $json = new \stdClass();
+            $json->status = $this->commandStatus;
+            if ($this->commandStatus === self::STATUS_ERROR) {
+                $json->data = $this->errorMessages;
+            } else {
+                $json->data = $data;
+            }
+            $data = json_encode($json);
+        } else {
+            if (is_array($data)) {
+                $data = implode(PHP_EOL, $data);
+            }
+        }
+
+        return $data;
     }
 }

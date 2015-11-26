@@ -22,6 +22,8 @@ namespace MaxServ\Typo3Local;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  */
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class SiteController
@@ -30,19 +32,14 @@ namespace MaxServ\Typo3Local;
  */
 class SiteController extends AbstractController
 {
+
     /**
-     * Find TYPO3 sites
-     *
-     * @var array $arguments
+     * Get TYPO3 sites
      *
      * @return array
      */
-    public static function listAction($arguments = array())
+    private function getTypo3Sites()
     {
-        $format = '';
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'] ?: '';
-        }
         $sites = scandir(REVIEW_DOCUMENT_ROOT . '/..');
         $exclude = array(
             '.',
@@ -69,10 +66,60 @@ class SiteController extends AbstractController
 
         }
 
-        if ($format === 'json') {
-            self::sendJsonResponse($typo3Sites);
+        return $typo3Sites;
+    }
+
+    /**
+     * Find TYPO3 sites
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function listAction(Request $request)
+    {
+        $data = $this->getTypo3Sites();
+        $data = $this->prepareData($request, $data);
+
+        $response = new Response($data);
+        $response->prepare($request);
+        return $response;
+    }
+
+    /**
+     * Reset TYPO3 site
+     *
+     * @param Request $request
+     * @param string $site
+     *
+     * @return Response
+     */
+    public function resetSiteAction(Request $request, $site)
+    {
+        $sourcePath = $this->getSitePath($site) . '/typo3_src';
+        if ($this->changeDirectory($sourcePath)) {
+            if (!$this->executeCommand($request, 'git reset --hard origin/master', 'live')) {
+                $this->fail();
+                $this->errorMessages[] = $this->failedProcess->getErrorOutput();
+            }
         }
 
-        return $typo3Sites;
+        return new Response();
+    }
+
+    /**
+     * Reset TYPO3 sites
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function resetSitesAction(Request $request)
+    {
+        foreach ($this->getTypo3Sites() as $site) {
+            $this->resetSiteAction($request, $site);
+        }
+
+        return new Response();
     }
 }

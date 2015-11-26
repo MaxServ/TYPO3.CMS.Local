@@ -22,6 +22,8 @@ namespace MaxServ\Typo3Local;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  */
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class Git Repository Controller
@@ -40,7 +42,7 @@ class GitRepositoryController extends AbstractController
      *
      * @return array
      */
-    protected static function getRepositoryPath($basePath = '', $repository = '')
+    protected function getRepositoryPath($basePath = '', $repository = '')
     {
         $repository = str_replace(array('%21', '!'), '/', $repository);
 
@@ -48,244 +50,187 @@ class GitRepositoryController extends AbstractController
         if (!strpos($path, $basePath) === 0) {
             $path = $basePath;
         }
+
         return $path;
     }
 
     /**
      * Show git branches
      *
-     * @var array $arguments
+     * @param Request $request
+     * @param string $repository
+     * @param string $site
      *
-     * @return array
+     * @return Response
      */
-    public static function branchAction($arguments = array())
+    public function branchAction(Request $request, $repository, $site)
     {
-        $format = '';
-        $repository = '';
-        $site = '';
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
+        $data = '';
+        $path = $this->getSitePath($site);
+        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        if ($this->changeDirectory($repositoryPath)) {
+            $log = $this->executeCommand('git branch -r');
+            $data = explode(PHP_EOL, $log);
         }
-        if (isset($arguments['repository'])) {
-            $repository = $arguments['repository'];
-        }
-        if (isset($arguments['site'])) {
-            $site = $arguments['site'];
-        }
+        $data = $this->prepareData($request, $data);
 
-        $path = self::getSitePath($site);
+        $response = new Response($data);
+        $response->prepare($request);
 
-        $repositoryPath = self::getRepositoryPath($path, $repository);
-        chdir($repositoryPath);
-
-        $log = self::executeCommand('git branch -r');
-        $lines = explode(PHP_EOL, $log);
-
-        if ($format === 'json') {
-            self::sendJsonResponse($lines);
-        }
-
-        return $lines;
+        return $response;
     }
 
     /**
      * Checkout a change from a git repository
      *
-     * @var array $arguments
+     * @param Request $request
+     * @param string $change
+     * @param string $site
+     * @param string $repository
      *
-     * @return array
+     * @return Response
      */
-    public static function checkoutAction($arguments = array())
-    {
-        $change = '';
-        $format = '';
-        $repository = '';
-        $site = '';
-        if (isset($arguments['change'])) {
-            $change = $arguments['change'];
-            $change = str_replace(array('%21', '!'), '/', $change);
-        }
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
-        }
-        if (isset($arguments['repository'])) {
-            $repository = $arguments['repository'];
-        }
-        if (isset($arguments['site'])) {
-            $site = $arguments['site'];
-        }
+    public function checkoutAction(
+        Request $request,
+        $change,
+        $site,
+        $repository
+    ) {
+        $data = '';
+        $change = str_replace(array('%21', '!'), '/', $change);
+        $path = $this->getSitePath($site);
+        $repositoryPath = $this->getRepositoryPath($path, $repository);
 
-        $path = self::getSitePath($site);
-
-        $repositoryPath = self::getRepositoryPath($path, $repository);
-        chdir($repositoryPath);
-
-        $log = self::executeCommand('git checkout ' . escapeshellcmd($change));
-        $lines = explode(PHP_EOL, $log);
-
-        if ($format === 'json') {
-            self::sendJsonResponse($lines);
+        if ($this->changeDirectory($repositoryPath)) {
+            $log = $this->executeCommand('git checkout ' . escapeshellcmd($change));
+            $data = explode(PHP_EOL, $log);
         }
+        $data = $this->prepareData($request, $data);
 
-        return $lines;
+        $response = new Response($data);
+        $response->prepare($request);
+
+        return $response;
     }
-    
+
     /**
      * Clean git repository
      *
-     * @var array $arguments
+     * @param Request $request
+     * @param string $site
+     * @param string $repository
      *
-     * @return array
+     * @return Response
      */
-    public static function cleanAction($arguments = array())
+    public function cleanAction(Request $request, $site, $repository)
     {
-        $format = '';
-        $repository = '';
-        $site = '';
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
+        $data = '';
+        $path = $this->getSitePath($site);
+        $repositoryPath = $this->getRepositoryPath($path, $repository);
+
+        if ($this->changeDirectory($repositoryPath)) {
+            $log = $this->executeCommand('git clean -df');
+            $data = explode(PHP_EOL, $log);
         }
-        if (isset($arguments['repository'])) {
-            $repository = $arguments['repository'];
-        }
-        if (isset($arguments['site'])) {
-            $site = $arguments['site'];
-        }
+        $data = $this->prepareData($request, $data);
 
-        $path = self::getSitePath($site);
+        $response = new Response($data);
+        $response->prepare($request);
 
-        $repositoryPath = self::getRepositoryPath($path, $repository);
-        chdir($repositoryPath);
-
-        $log = self::executeCommand('git clean -df');
-        $lines = explode(PHP_EOL, $log);
-
-        if ($format === 'json') {
-            self::sendJsonResponse($lines);
-        }
-
-        return $lines;
+        return $response;
     }
 
     /**
      * Fetch changes for git repository
      *
-     * @var array $arguments
+     * @param Request $request
+     * @param string $branch
+     * @param string $remote
+     * @param string $site
+     * @param string $repository
      *
-     * @return array
+     * @return Response
      */
-    public static function fetchAction($arguments = array())
-    {
-        $branch = '';
-        $format = '';
-        $remote = '';
-        $repository = '';
-        $site = '';
-        if (isset($arguments['branch'])) {
-            $branch = $arguments['branch'];
-        }
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
-        }
-        if (isset($arguments['remote'])) {
-            $remote = $arguments['remote'];
-        }
-        if (isset($arguments['repository'])) {
-            $repository = $arguments['repository'];
-        }
-        if (isset($arguments['site'])) {
-            $site = $arguments['site'];
-        }
+    public function fetchAction(
+        Request $request,
+        $branch,
+        $remote,
+        $site,
+        $repository
+    ) {
+        $data = '';
+        $path = $this->getSitePath($site);
 
-        $path = self::getSitePath($site);
+        $repositoryPath = $this->getRepositoryPath($path, $repository);
 
-        $repositoryPath = self::getRepositoryPath($path, $repository);
-        chdir($repositoryPath);
-
-        $log = self::executeCommand('git fetch ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
-        $lines = explode(PHP_EOL, $log);
-
-        if ($format === 'json') {
-            self::sendJsonResponse($lines);
+        if ($this->changeDirectory($repositoryPath)) {
+            $log = $this->executeCommand('git fetch ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
+            $data = explode(PHP_EOL, $log);
         }
+        $data = $this->prepareData($request, $data);
 
-        return $lines;
+        $response = new Response($data);
+        $response->prepare($request);
+
+        return $response;
     }
 
     /**
      * Get user.email
      *
-     * @var array $arguments
+     * @param Request $request
      *
-     * @return array
+     * @return Response
      */
-    public static function getUserEmailAction($arguments = array())
+    public function getUserEmailAction(Request $request)
     {
-        $format = '';
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
-        }
+        $data = $this->executeCommand('git config --get user.email');
+        $data = $this->prepareData($request, $data);
 
-        $userEmail = self::executeCommand('git config --get user.email');
+        $response = new Response($data);
+        $response->prepare($request);
 
-        if ($format === 'json') {
-            self::sendJsonResponse($userEmail);
-        }
-
-        return $userEmail;
+        return $response;
     }
 
     /**
      * Get user.name
      *
-     * @var array $arguments
+     * @param Request $request
      *
-     * @return array
+     * @return Response
      */
-    public static function getUserNameAction($arguments = array())
+    public function getUserNameAction(Request $request)
     {
-        $format = '';
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
-        }
+        $data = $this->executeCommand('git config --get user.name');
+        $data = $this->prepareData($request, $data);
 
-        $userName = self::executeCommand('git config --get user.name');
+        $response = new Response($data);
+        $response->prepare($request);
 
-        if ($format === 'json') {
-            self::sendJsonResponse($userName);
-        }
-
-        return $userName;
+        return $response;
     }
 
     /**
      * Find Git repositories in site root four levels deep
      *
-     * @var array $arguments
+     * @param Request $request
+     * @param string $site
      *
-     * @return array
+     * @return Response
      */
-    public static function listAction($arguments = array())
+    public function listAction(Request $request, $site)
     {
-        $format = '';
-        $site = '';
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
-        }
-        if (isset($arguments['site'])) {
-            $site = $arguments['site'];
-        }
-
-        $path = self::getSitePath($site);
+        $path = $this->getSitePath($site);
 
         $gitRepositories = glob(
             $path . '/{**,**/**,**/**/**,**/**/**/**}/.git',
             GLOB_BRACE | GLOB_ONLYDIR
         );
-        $filteredRepositories = array();
+        $data = array();
         foreach ($gitRepositories as $repository) {
             if (!strstr($repository, 'local.neos.io') && is_dir($repository)) {
-                $filteredRepositories[] = str_replace(
+                $data[] = str_replace(
                     array(
                         $path . '/',
                         '/.git'
@@ -296,338 +241,274 @@ class GitRepositoryController extends AbstractController
             }
         }
 
-        if ($format === 'json') {
-            self::sendJsonResponse($filteredRepositories);
-        }
+        $data = $this->prepareData($request, $data);
 
-        return $filteredRepositories;
+        $response = new Response($data);
+        $response->prepare($request);
+
+        return $response;
     }
 
     /**
      * Pull git repository
      *
-     * @var array $arguments
+     * @param Request $request
+     * @param string $branch
+     * @param string $remote
+     * @param string $repository
+     * @param string $site
      *
-     * @return array
+     * @return Response
      */
-    public static function pullAction($arguments = array())
-    {
-        $branch = '';
-        $format = '';
-        $remote = '';
-        $repository = '';
-        $site = '';
-        if (isset($arguments['branch'])) {
-            $branch = $arguments['branch'];
-        }
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
-        }
-        if (isset($arguments['remote'])) {
-            $remote = $arguments['remote'];
-        }
-        if (isset($arguments['repository'])) {
-            $repository = $arguments['repository'];
-        }
-        if (isset($arguments['site'])) {
-            $site = $arguments['site'];
+    public function pullAction(
+        Request $request,
+        $branch,
+        $remote,
+        $repository,
+        $site
+    ) {
+        $data = '';
+        $path = $this->getSitePath($site);
+
+        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        if ($this->changeDirectory($repositoryPath)) {
+            $log = $this->executeCommand('git pull ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
+            $data = explode(PHP_EOL, $log);
         }
 
-        $path = self::getSitePath($site);
+        $data = $this->prepareData($request, $data);
 
-        $repositoryPath = self::getRepositoryPath($path, $repository);
-        chdir($repositoryPath);
+        $response = new Response($data);
+        $response->prepare($request);
 
-        $log = self::executeCommand('git pull ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
-        $lines = explode(PHP_EOL, $log);
-
-        if ($format === 'json') {
-            self::sendJsonResponse($lines);
-        }
-
-        return $lines;
+        return $response;
     }
 
     /**
      * Chery Pick a commit
      *
-     * @var array $arguments
+     * @param Request $request
+     * @param string $repository
+     * @param string $site
      *
-     * @return array
+     * @return Response
      */
-    public static function pickAction($arguments = array())
-    {
-        $format = '';
-        $repository = '';
-        $site = '';
-        $fetchUrl = '';
-        $change = '';
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
-        }
-        if (isset($arguments['repository'])) {
-            $repository = $arguments['repository'];
-        }
-        if (isset($arguments['site'])) {
-            $site = $arguments['site'];
-        }
-        if (isset($arguments['request'])) {
-            $fetchUrl = urldecode($arguments['request']->get('fetchUrl'));
-            $fetchUrl = escapeshellcmd($fetchUrl);
-            $change = urldecode($arguments['request']->get('change'));
-            $change = escapeshellcmd($change);
+    public function pickAction(
+        Request $request,
+        $repository,
+        $site
+    ) {
+        $fetchUrl = urldecode($request->get('fetchUrl'));
+        $fetchUrl = escapeshellcmd($fetchUrl);
+        $change = urldecode($request->get('change'));
+        $change = escapeshellcmd($change);
+
+        $data = '';
+        $path = $this->getSitePath($site);
+
+        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        if ($this->changeDirectory($repositoryPath)) {
+            $log = $this->executeCommand('git fetch ' . $fetchUrl . ' ' . $change . ' && git cherry-pick FETCH_HEAD');
+            $data = explode(PHP_EOL, $log);
         }
 
-        $path = self::getSitePath($site);
+        $data = $this->prepareData($request, $data);
 
-        $repositoryPath = self::getRepositoryPath($path, $repository);
-        chdir($repositoryPath);
+        $response = new Response($data);
+        $response->prepare($request);
 
-        $log = self::executeCommand('git fetch ' . $fetchUrl . ' ' . $change . ' && git cherry-pick FETCH_HEAD');
-        $lines = explode(PHP_EOL, $log);
-
-        if ($format === 'json') {
-            self::sendJsonResponse($lines);
-        }
-
-        return $lines;
+        return $response;
     }
 
     /**
      * Reset git repository
      *
-     * @var array $arguments
+     * @param Request $request
+     * @param string $branch
+     * @param string $remote
+     * @param string $repository
+     * @param string $site
      *
-     * @return array
+     * @return Response
      */
-    public static function resetAction($arguments = array())
-    {
-        $branch = '';
-        $format = '';
-        $remote = '';
-        $repository = '';
-        $site = '';
-        if (isset($arguments['branch'])) {
-            $branch = $arguments['branch'];
-        }
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
-        }
-        if (isset($arguments['remote'])) {
-            $remote = $arguments['remote'];
-        }
-        if (isset($arguments['repository'])) {
-            $repository = $arguments['repository'];
-        }
-        if (isset($arguments['site'])) {
-            $site = $arguments['site'];
+    public function resetAction(
+        Request $request,
+        $branch,
+        $remote,
+        $repository,
+        $site
+    ) {
+        $data = '';
+        $path = $this->getSitePath($site);
+
+        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        if ($this->changeDirectory($repositoryPath)) {
+            $log = $this->executeCommand('git reset --hard ' . escapeshellcmd($remote) . '/' . escapeshellcmd($branch));
+            $data = explode(PHP_EOL, $log);
         }
 
-        $path = self::getSitePath($site);
+        $data = $this->prepareData($request, $data);
 
-        $repositoryPath = self::getRepositoryPath($path, $repository);
-        chdir($repositoryPath);
+        $response = new Response($data);
+        $response->prepare($request);
 
-        $log = self::executeCommand('git reset --hard ' . escapeshellcmd($remote) . '/' . escapeshellcmd($branch));
-        $lines = explode(PHP_EOL, $log);
-
-        if ($format === 'json') {
-            self::sendJsonResponse($lines);
-        }
-
-        return $lines;
+        return $response;
     }
 
     /**
      * Set user.name
      *
-     * @var array $arguments
+     * @param Request $request
+     * @param string $userName
      *
-     * @return array
+     * @return Response
      */
-    public static function setUserNameAction($arguments = array())
+    public function setUserNameAction(Request $request, $userName)
     {
-        $format = '';
-        $userName = '';
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
-        }
-        if (isset($arguments['userName'])) {
-            $userName = $arguments['userName'];
-        }
-
         $userName = str_replace('%20', ' ', $userName);
 
-        $userName = self::executeCommand('git config --global --replace-all user.name ' . escapeshellarg($userName));
+        $data = $this->executeCommand('git config --global --replace-all user.name ' . escapeshellarg($userName));
+        $data = $this->prepareData($request, $data);
 
-        if ($format === 'json') {
-            self::sendJsonResponse($userName);
-        }
+        $response = new Response($data);
+        $response->prepare($request);
 
-        return $userName;
+        return $response;
     }
 
     /**
      * Set user.email
      *
-     * @var array $arguments
+     * @param Request $request
+     * @param string $userEmail
      *
-     * @return array
+     * @return Response
      */
-    public static function setUserEmailAction($arguments = array())
+    public function setUserEmailAction(Request $request, $userEmail)
     {
-        $format = '';
-        $userEmail = '';
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
-        }
-        if (isset($arguments['userEmail'])) {
-            $userEmail = $arguments['userEmail'];
-        }
+        $data = $this->executeCommand('git config --global --replace-all user.email ' . escapeshellarg($userEmail));
+        $data = $this->prepareData($request, $data);
 
-        $userEmail = self::executeCommand('git config --global --replace-all user.email ' . escapeshellarg($userEmail));
+        $response = new Response($data);
+        $response->prepare($request);
 
-        if ($format === 'json') {
-            self::sendJsonResponse($userEmail);
-        }
-
-        return $userEmail;
+        return $response;
     }
 
     /**
      * Return git status
      *
-     * @var array $arguments
+     * @param Request $request
      *
-     * @return array
+     * @param string $detail
+     * @param string $site
+     * @param integer $range
+     * @param string $repository
+     *
+     * @return Response
      */
-    public static function statusAction($arguments = array())
-    {
+    public function statusAction(
+        Request $request,
+        $detail,
+        $site,
+        $range,
+        $repository
+    ) {
         $commits = array();
-        $detail = '';
-        $format = '';
-        $range = 1;
-        $repository = '';
-        $site = '';
-        $status = 'OK';
 
-        if (isset($arguments['detail'])) {
-            if ($arguments['detail'] === 'oneline') {
-                $detail = '--oneline';
-            }
+        if ($detail === 'oneline') {
+            $detail = '--oneline';
         }
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
-        }
-        if (isset($arguments['site'])) {
-            $site = $arguments['site'];
-        }
-        if (isset($arguments['range'])) {
-            $range = abs((integer)$arguments['range']);
-        }
-        if (isset($arguments['repository'])) {
-            $repository = $arguments['repository'];
-        }
+        $range = abs((integer)$range);
 
-        $path = self::getSitePath($site);
-
-        $repositoryPath = self::getRepositoryPath($path, $repository);
-        chdir($repositoryPath);
-
-        if ($detail === '--oneline') {
-            $log = self::executeCommand('git log -' . $range . ' ' . $detail);
-            $lines = explode(PHP_EOL, $log);
-            foreach ($lines as $line) {
-                list($sha1, $subject) = explode(' ', $line, 2);
-                $commit = new \stdClass();
-                $commit->sha1 = $sha1;
-                $commit->subject = $subject;
-                $commits[] = $commit;
-            }
-        } else {
-            $log = self::executeCommand(
-                'git log -' . $range . ' --pretty=format:\'<change>%n' .
-                '<commit>%H</commit>%n' .
-                '<abbreviated_commit>%h</abbreviated_commit>%n' .
-                '<tree>%T</tree>%n' .
-                '<abbreviated_tree>%t</abbreviated_tree>%n' .
-                '<parent>%P</parent>%n' .
-                '<abbreviated_parent>%p</abbreviated_parent>>%n' .
-                '<subject><![CDATA[%s]]></subject>%n' .
-                '<body><![CDATA[%b]]></body>%n' .
-                '<author>%n' .
-                '  <name>%aN</name>%n' .
-                '  <email>%aE</email>%n' .
-                '  <date>%aD</date>%n' .
-                '</author>%n' .
-                '<commiter>%n' .
-                '  <name>%cN</name>%n' .
-                '  <email>%cE</email>%n' .
-                '  <date>%cD</date>%n' .
-                '</commiter>%n' .
-                '</change>%n' .
-                '\''
-            );
-
-            if ($range > 1) {
-                $log = '<changes>' . $log . '</changes>';
-                $xml = simplexml_load_string($log, null, LIBXML_NOCDATA);
-                $commitData = json_decode(json_encode($xml));
-                $commits = $commitData->change;
+        $path = $this->getSitePath($site);
+        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        if ($this->changeDirectory($repositoryPath)) {
+            if ($detail === '--oneline') {
+                $log = $this->executeCommand('git log -' . $range . ' ' . $detail);
+                $lines = explode(PHP_EOL, $log);
+                foreach ($lines as $line) {
+                    list($sha1, $subject) = explode(' ', $line, 2);
+                    $commit = new \stdClass();
+                    $commit->sha1 = $sha1;
+                    $commit->subject = $subject;
+                    $commits[] = $commit;
+                }
             } else {
-                $xml = simplexml_load_string($log, null, LIBXML_NOCDATA);
-                $commitData = json_decode(json_encode($xml));
-                $commits = $commitData;
-            }
-            if (json_last_error()) {
-                $status = 'Error';
-                $commit = new \stdClass();
-                $commit->message = json_last_error_msg();
-                $commits[] = $commit;
+                $log = $this->executeCommand(
+                    'git log -' . $range . ' --pretty=format:\'<change>%n' .
+                    '<commit>%H</commit>%n' .
+                    '<abbreviated_commit>%h</abbreviated_commit>%n' .
+                    '<tree>%T</tree>%n' .
+                    '<abbreviated_tree>%t</abbreviated_tree>%n' .
+                    '<parent>%P</parent>%n' .
+                    '<abbreviated_parent>%p</abbreviated_parent>>%n' .
+                    '<subject><![CDATA[%s]]></subject>%n' .
+                    '<body><![CDATA[%b]]></body>%n' .
+                    '<author>%n' .
+                    '  <name>%aN</name>%n' .
+                    '  <email>%aE</email>%n' .
+                    '  <date>%aD</date>%n' .
+                    '</author>%n' .
+                    '<commiter>%n' .
+                    '  <name>%cN</name>%n' .
+                    '  <email>%cE</email>%n' .
+                    '  <date>%cD</date>%n' .
+                    '</commiter>%n' .
+                    '</change>%n' .
+                    '\''
+                );
+
+                if ($range > 1) {
+                    $log = '<changes>' . $log . '</changes>';
+                    $xml = simplexml_load_string($log, null, LIBXML_NOCDATA);
+                    $commitData = json_decode(json_encode($xml));
+                    $commits = $commitData->change;
+                } else {
+                    $xml = simplexml_load_string($log, null, LIBXML_NOCDATA);
+                    $commitData = json_decode(json_encode($xml));
+                    $commits = $commitData;
+                }
+                if (json_last_error()) {
+                    $this->commandStatus = self::STATUS_ERROR;
+                    $this->errorMessages[] = json_last_error_msg();
+                }
             }
         }
 
-        if ($format === 'json') {
-            self::sendJsonResponse($commits, $status);
-        }
+        $data = $this->prepareData($request, $commits);
 
-        return $commits;
+        $response = new Response($data);
+        $response->prepare($request);
+
+        return $response;
     }
 
     /**
      * Show git tags
      *
-     * @var array $arguments
+     * @param Request $request
+     * @param string $repository
+     * @param string $site
      *
-     * @return array
+     * @return Response
      */
-    public static function tagAction($arguments = array())
+    public function tagAction(Request $request, $repository, $site)
     {
-        $format = '';
-        $repository = '';
-        $site = '';
-        if (isset($arguments['format'])) {
-            $format = $arguments['format'];
-        }
-        if (isset($arguments['repository'])) {
-            $repository = $arguments['repository'];
-        }
-        if (isset($arguments['site'])) {
-            $site = $arguments['site'];
+        $data = '';
+        $path = $this->getSitePath($site);
+
+        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        if ($this->changeDirectory($repositoryPath)) {
+            $log = $this->executeCommand('git tag');
+            $data = explode(PHP_EOL, $log);
         }
 
-        $path = self::getSitePath($site);
+        $data = $this->prepareData($request, $data);
 
-        $repositoryPath = self::getRepositoryPath($path, $repository);
-        chdir($repositoryPath);
+        $response = new Response($data);
+        $response->prepare($request);
 
-        $log = self::executeCommand('git tag');
-        $lines = explode(PHP_EOL, $log);
-
-        if ($format === 'json') {
-            self::sendJsonResponse($lines);
-        }
-
-        return $lines;
+        return $response;
     }
 }

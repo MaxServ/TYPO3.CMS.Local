@@ -1,67 +1,86 @@
 # routes.yml
 sites:
-  path:     /site/list
-  defaults: { controller: '\MaxServ\Typo3Local\SiteController', action: 'listAction', format: 'json' }
+  path:     /site/list.{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\SiteController::listAction', _format: 'json' }
+  requirements: { _format: 'html|json', _method: 'GET' }
+
+sitesResetAll:
+  path:     /site/reset
+  defaults: { _controller: '\MaxServ\Typo3Local\SiteController::resetSitesAction' }
+  requirements: { _method: 'GET' }
+
+sitesResetSite:
+  path:     /site/reset/{site}
+  defaults: { _controller: '\MaxServ\Typo3Local\SiteController::resetSiteAction' }
 
 gitBranch:
-  path:     /git/branch/{site}/{repository}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'branchAction', format: 'json' }
+  path:     /git/branch/{site}/{repository}.{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::branchAction', _format: 'json' }
+  requirements: { _format: 'html|json', _method: 'GET' }
 
 gitClean:
-  path:     /git/clean/{site}/{repository}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'cleanAction', format: 'json' }
+  path:     /git/clean/{site}/{repository}.{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::cleanAction', _format: 'json' }
+  requirements: { _format: 'html|json', _method: 'GET' }
 
 gitCheckout:
-  path:     /git/checkout/{site}/{repository}/{change}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'checkoutAction', format: 'json' }
+  path:     /git/checkout/{site}/{repository}/{change}.{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::checkoutAction', _format: 'json' }
+  requirements: { _format: 'html|json', _method: 'GET' }
 
 gitFetch:
-  path:     /git/fetch/{site}/{repository}/{remote}/{branch}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'fetchAction', format: 'json', remote: 'origin', branch: 'master' }
+  path:     /git/fetch/{site}/{repository}/{remote}/{branch}.{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::fetchAction', _format: 'json', remote: 'origin', branch: 'master' }
+  requirements: { _format: 'html|json', _method: 'GET' }
 
 gitGetUserEmail:
-  path:     /git/getuseremail
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'getUserEmailAction', format: 'json' }
+  path:     /git/getuseremail.{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::getUserEmailAction', _format: 'json' }
+  requirements: { _format: 'html|json', _method: 'GET' }
 
 gitSetUserEmail:
   path:     /git/setuseremail/{userEmail}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'setUserEmailAction', format: 'json' }
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::setUserEmailAction', _format: 'json' }
 
 gitGetUserName:
-  path:     /git/getusername
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'getUserNameAction', format: 'json' }
+  path:     /git/getusername.{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::getUserNameAction', _format: 'json' }
+  requirements: { _format: 'html|json', _method: 'GET' }
 
 gitSetUserName:
   path:     /git/setusername/{userName}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'setUserNameAction', format: 'json' }
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::setUserNameAction', _format: 'json' }
 
 gitPick:
   path:     /git/pick/{site}/{repository}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'pickAction', format: 'json' }
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::pickAction', _format: 'json' }
+  requirements: { _format: 'html|json', _method: 'GET' }
 
 gitPull:
   path:     /git/pull/{site}/{repository}/{remote}/{branch}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'pullAction', format: 'json', remote: 'origin', branch: 'master' }
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::pullAction', _format: 'json', remote: 'origin', branch: 'master' }
 
 gitRepositories:
-  path:     /git/list/{site}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'listAction', format: 'json' }
+  path:     /git/list/{site}/{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::listAction', _format: 'json' }
+  requirements: { _format: 'html|json', _method: 'GET' }
 
 gitReset:
   path:     /git/reset/{site}/{repository}/{remote}/{branch}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'resetAction', format: 'json', remote: 'origin', branch: 'master' }
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::resetAction', _format: 'json', remote: 'origin', branch: 'master' }
 
 gitStatus:
   path:     /git/status/{site}/{repository}/{range}/{detail}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'statusAction', format: 'json', range: '1', detail: 'oneline' }
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::statusAction', _format: 'json', range: '1', detail: 'oneline' }
 
 gitTag:
-  path:     /git/tag/{site}/{repository}
-  defaults: { controller: '\MaxServ\Typo3Local\GitRepositoryController', action: 'tagAction', format: 'json' }
+  path:     /git/tag/{site}/{repository}/{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::tagAction', _format: 'json' }
 
 version:
-  path:     /version
-  defaults: { controller: '\MaxServ\Typo3Local\VersionController', action: 'listAction', format: 'json' }
+  path:     /version.{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\VersionController::listAction', _format: 'json' }
+  requirements: { _format: 'html|json', _method: 'GET' }
 
 default:
   path:     /
