@@ -1,6 +1,26 @@
 # routes.yml
+composerDiagnose:
+  path:     /composer/diagnose/{site}/{path}/{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\ComposerController::diagnoseAction', _format: 'json', path: '' }
+  requirements: { _format: 'html|json', _method: 'GET' }
+
+composerDumpAutoload:
+  path:     /composer/dumpautoload/{site}/{path}/{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\ComposerController::dumpAutoloadAction', _format: 'json', path: '' }
+  requirements: { _format: 'html|json', _method: 'GET' }
+
+composerInstall:
+  path:     /composer/install/{site}/{path}/{devMode}/{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\ComposerController::installAction', _format: 'json', path: '', devMode: 'no-dev' }
+  requirements: { _format: 'html|json', _method: 'GET', devMode: 'dev|no-dev' }
+
+composerUpdate:
+  path:     /composer/update/{site}/{path}/{devMode}/{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\ComposerController::updateAction', _format: 'json', path: '', devMode: 'no-dev' }
+  requirements: { _format: 'html|json', _method: 'GET', devMode: 'dev|no-dev' }
+
 sites:
-  path:     /site/list.{_format}
+  path:     /site/list/{_format}
   defaults: { _controller: '\MaxServ\Typo3Local\SiteController::listAction', _format: 'json' }
   requirements: { _format: 'html|json', _method: 'GET' }
 
@@ -12,29 +32,30 @@ sitesResetAll:
 sitesResetSite:
   path:     /site/reset/{site}
   defaults: { _controller: '\MaxServ\Typo3Local\SiteController::resetSiteAction' }
+  requirements: { _method: 'GET' }
 
 gitBranch:
-  path:     /git/branch/{site}/{repository}.{_format}
+  path:     /git/branch/{site}/{repository}/{_format}
   defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::branchAction', _format: 'json' }
   requirements: { _format: 'html|json', _method: 'GET' }
 
 gitClean:
-  path:     /git/clean/{site}/{repository}.{_format}
+  path:     /git/clean/{site}/{repository}/{_format}
   defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::cleanAction', _format: 'json' }
   requirements: { _format: 'html|json', _method: 'GET' }
 
 gitCheckout:
-  path:     /git/checkout/{site}/{repository}/{change}.{_format}
+  path:     /git/checkout/{site}/{repository}/{change}/{_format}
   defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::checkoutAction', _format: 'json' }
   requirements: { _format: 'html|json', _method: 'GET' }
 
 gitFetch:
-  path:     /git/fetch/{site}/{repository}/{remote}/{branch}.{_format}
+  path:     /git/fetch/{site}/{repository}/{remote}/{branch}/{_format}
   defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::fetchAction', _format: 'json', remote: 'origin', branch: 'master' }
   requirements: { _format: 'html|json', _method: 'GET' }
 
 gitGetUserEmail:
-  path:     /git/getuseremail.{_format}
+  path:     /git/getuseremail/{_format}
   defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::getUserEmailAction', _format: 'json' }
   requirements: { _format: 'html|json', _method: 'GET' }
 
@@ -43,7 +64,7 @@ gitSetUserEmail:
   defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::setUserEmailAction', _format: 'json' }
 
 gitGetUserName:
-  path:     /git/getusername.{_format}
+  path:     /git/getusername/{_format}
   defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::getUserNameAction', _format: 'json' }
   requirements: { _format: 'html|json', _method: 'GET' }
 
@@ -78,7 +99,7 @@ gitTag:
   defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::tagAction', _format: 'json' }
 
 version:
-  path:     /version.{_format}
+  path:     /version/{_format}
   defaults: { _controller: '\MaxServ\Typo3Local\VersionController::listAction', _format: 'json' }
   requirements: { _format: 'html|json', _method: 'GET' }
 

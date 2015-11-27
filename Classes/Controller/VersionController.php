@@ -22,8 +22,8 @@ namespace MaxServ\Typo3Local;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  */
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class VersionController
@@ -35,6 +35,8 @@ class VersionController extends AbstractController
     /**
      * Return current version
      *
+     * @param Request $request
+     *
      * @return Response
      */
     public function listAction(Request $request)
@@ -44,6 +46,7 @@ class VersionController extends AbstractController
 
         $response = new Response($data);
         $response->prepare($request);
+
         return $response;
     }
 }

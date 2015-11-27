@@ -83,6 +83,7 @@ class SiteController extends AbstractController
 
         $response = new Response($data);
         $response->prepare($request);
+
         return $response;
     }
 
@@ -98,11 +99,21 @@ class SiteController extends AbstractController
     {
         $sourcePath = $this->getSitePath($site) . '/typo3_src';
         if ($this->changeDirectory($sourcePath)) {
-            $this->executeCommand($request, 'git reset --hard origin/master', 'live');
+            $this->executeCommand(
+                'git reset --hard origin/master',
+                'live'
+            );
+            if (file_exists($sourcePath . '/typo3cms')) {
+                $this->executeCommand(
+                    './typo3cms cache:flush',
+                    'live'
+                );
+            }
         }
 
         $response = new Response();
         $response->prepare($request);
+
         return $response;
     }
 

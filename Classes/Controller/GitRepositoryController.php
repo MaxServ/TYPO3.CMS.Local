@@ -33,28 +33,6 @@ use Symfony\Component\HttpFoundation\Response;
 class GitRepositoryController extends AbstractController
 {
     /**
-     * Get repository path
-     *
-     * Slashes in the url are encoded as exclamation marks
-     *
-     * @var string $basePath
-     * @var string $repository
-     *
-     * @return array
-     */
-    protected function getRepositoryPath($basePath = '', $repository = '')
-    {
-        $repository = str_replace(array('%21', '!'), '/', $repository);
-
-        $path = realpath($basePath . '/' . $repository);
-        if (!strpos($path, $basePath) === 0) {
-            $path = $basePath;
-        }
-
-        return $path;
-    }
-
-    /**
      * Show git branches
      *
      * @param Request $request
@@ -65,14 +43,12 @@ class GitRepositoryController extends AbstractController
      */
     public function branchAction(Request $request, $repository, $site)
     {
-        $data = '';
         $path = $this->getSitePath($site);
-        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
-            $log = $this->executeCommand('git branch -r');
-            $data = explode(PHP_EOL, $log);
+            $this->executeCommand('git branch -r');
         }
-        $data = $this->prepareData($request, $data);
+        $data = $this->prepareData($request);
 
         $response = new Response($data);
         $response->prepare($request);
@@ -96,16 +72,14 @@ class GitRepositoryController extends AbstractController
         $site,
         $repository
     ) {
-        $data = '';
         $change = str_replace(array('%21', '!'), '/', $change);
         $path = $this->getSitePath($site);
-        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        $repositoryPath = $this->getPath($path, $repository);
 
         if ($this->changeDirectory($repositoryPath)) {
-            $log = $this->executeCommand('git checkout ' . escapeshellcmd($change));
-            $data = explode(PHP_EOL, $log);
+            $this->executeCommand('git checkout ' . escapeshellcmd($change));
         }
-        $data = $this->prepareData($request, $data);
+        $data = $this->prepareData($request);
 
         $response = new Response($data);
         $response->prepare($request);
@@ -124,15 +98,13 @@ class GitRepositoryController extends AbstractController
      */
     public function cleanAction(Request $request, $site, $repository)
     {
-        $data = '';
         $path = $this->getSitePath($site);
-        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        $repositoryPath = $this->getPath($path, $repository);
 
         if ($this->changeDirectory($repositoryPath)) {
-            $log = $this->executeCommand('git clean -df');
-            $data = explode(PHP_EOL, $log);
+            $this->executeCommand('git clean -df');
         }
-        $data = $this->prepareData($request, $data);
+        $data = $this->prepareData($request);
 
         $response = new Response($data);
         $response->prepare($request);
@@ -158,16 +130,14 @@ class GitRepositoryController extends AbstractController
         $site,
         $repository
     ) {
-        $data = '';
         $path = $this->getSitePath($site);
 
-        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        $repositoryPath = $this->getPath($path, $repository);
 
         if ($this->changeDirectory($repositoryPath)) {
-            $log = $this->executeCommand('git fetch ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
-            $data = explode(PHP_EOL, $log);
+            $this->executeCommand('git fetch ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
         }
-        $data = $this->prepareData($request, $data);
+        $data = $this->prepareData($request);
 
         $response = new Response($data);
         $response->prepare($request);
@@ -184,8 +154,8 @@ class GitRepositoryController extends AbstractController
      */
     public function getUserEmailAction(Request $request)
     {
-        $data = $this->executeCommand('git config --get user.email');
-        $data = $this->prepareData($request, $data);
+        $this->executeCommand('git config --get user.email');
+        $data = $this->prepareData($request);
 
         $response = new Response($data);
         $response->prepare($request);
@@ -202,8 +172,8 @@ class GitRepositoryController extends AbstractController
      */
     public function getUserNameAction(Request $request)
     {
-        $data = $this->executeCommand('git config --get user.name');
-        $data = $this->prepareData($request, $data);
+        $this->executeCommand('git config --get user.name');
+        $data = $this->prepareData($request);
 
         $response = new Response($data);
         $response->prepare($request);
@@ -267,16 +237,14 @@ class GitRepositoryController extends AbstractController
         $repository,
         $site
     ) {
-        $data = '';
         $path = $this->getSitePath($site);
 
-        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
-            $log = $this->executeCommand('git pull ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
-            $data = explode(PHP_EOL, $log);
+            $this->executeCommand('git pull ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
         }
 
-        $data = $this->prepareData($request, $data);
+        $data = $this->prepareData($request);
 
         $response = new Response($data);
         $response->prepare($request);
@@ -293,26 +261,21 @@ class GitRepositoryController extends AbstractController
      *
      * @return Response
      */
-    public function pickAction(
-        Request $request,
-        $repository,
-        $site
-    ) {
+    public function pickAction(Request $request, $repository, $site)
+    {
         $fetchUrl = urldecode($request->get('fetchUrl'));
         $fetchUrl = escapeshellcmd($fetchUrl);
         $change = urldecode($request->get('change'));
         $change = escapeshellcmd($change);
 
-        $data = '';
         $path = $this->getSitePath($site);
 
-        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
-            $log = $this->executeCommand('git fetch ' . $fetchUrl . ' ' . $change . ' && git cherry-pick FETCH_HEAD');
-            $data = explode(PHP_EOL, $log);
+            $this->executeCommand('git fetch ' . $fetchUrl . ' ' . $change . ' && git cherry-pick FETCH_HEAD');
         }
 
-        $data = $this->prepareData($request, $data);
+        $data = $this->prepareData($request);
 
         $response = new Response($data);
         $response->prepare($request);
@@ -338,16 +301,14 @@ class GitRepositoryController extends AbstractController
         $repository,
         $site
     ) {
-        $data = '';
         $path = $this->getSitePath($site);
 
-        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
-            $log = $this->executeCommand('git reset --hard ' . escapeshellcmd($remote) . '/' . escapeshellcmd($branch));
-            $data = explode(PHP_EOL, $log);
+            $this->executeCommand('git reset --hard ' . escapeshellcmd($remote) . '/' . escapeshellcmd($branch));
         }
 
-        $data = $this->prepareData($request, $data);
+        $data = $this->prepareData($request);
 
         $response = new Response($data);
         $response->prepare($request);
@@ -367,8 +328,8 @@ class GitRepositoryController extends AbstractController
     {
         $userName = str_replace('%20', ' ', $userName);
 
-        $data = $this->executeCommand('git config --global --replace-all user.name ' . escapeshellarg($userName));
-        $data = $this->prepareData($request, $data);
+        $this->executeCommand('git config --global --replace-all user.name ' . escapeshellarg($userName));
+        $data = $this->prepareData($request);
 
         $response = new Response($data);
         $response->prepare($request);
@@ -386,8 +347,8 @@ class GitRepositoryController extends AbstractController
      */
     public function setUserEmailAction(Request $request, $userEmail)
     {
-        $data = $this->executeCommand('git config --global --replace-all user.email ' . escapeshellarg($userEmail));
-        $data = $this->prepareData($request, $data);
+        $this->executeCommand('git config --global --replace-all user.email ' . escapeshellarg($userEmail));
+        $data = $this->prepareData($request);
 
         $response = new Response($data);
         $response->prepare($request);
@@ -422,11 +383,11 @@ class GitRepositoryController extends AbstractController
         $range = abs((integer)$range);
 
         $path = $this->getSitePath($site);
-        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
             if ($detail === '--oneline') {
-                $log = $this->executeCommand('git log -' . $range . ' ' . $detail);
-                $lines = explode(PHP_EOL, $log);
+                $this->executeCommand('git log -' . $range . ' ' . $detail);
+                $lines = $this->commandStdout;
                 foreach ($lines as $line) {
                     list($sha1, $subject) = explode(' ', $line, 2);
                     $commit = new \stdClass();
@@ -435,7 +396,7 @@ class GitRepositoryController extends AbstractController
                     $commits[] = $commit;
                 }
             } else {
-                $log = $this->executeCommand(
+                $this->executeCommand(
                     'git log -' . $range . ' --pretty=format:\'<change>%n' .
                     '<commit>%H</commit>%n' .
                     '<abbreviated_commit>%h</abbreviated_commit>%n' .
@@ -458,6 +419,7 @@ class GitRepositoryController extends AbstractController
                     '</change>%n' .
                     '\''
                 );
+                $log = implode(PHP_EOL, $this->commandStdout);
 
                 if ($range > 1) {
                     $log = '<changes>' . $log . '</changes>';
@@ -494,16 +456,14 @@ class GitRepositoryController extends AbstractController
      */
     public function tagAction(Request $request, $repository, $site)
     {
-        $data = '';
         $path = $this->getSitePath($site);
 
-        $repositoryPath = $this->getRepositoryPath($path, $repository);
+        $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
-            $log = $this->executeCommand('git tag');
-            $data = explode(PHP_EOL, $log);
+            $this->executeCommand('git tag');
         }
 
-        $data = $this->prepareData($request, $data);
+        $data = $this->prepareData($request);
 
         $response = new Response($data);
         $response->prepare($request);

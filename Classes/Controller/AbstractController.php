@@ -25,6 +25,8 @@ namespace MaxServ\Typo3Local;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 /**
@@ -61,7 +63,14 @@ class AbstractController extends Controller
      *
      * @var array
      */
-    protected $errorMessages = array();
+    protected $commandStderr = array();
+
+    /**
+     * Output messages
+     *
+     * @var array
+     */
+    protected $commandStdout = array();
 
     /**
      * TYPO3 Manager version
@@ -74,34 +83,66 @@ class AbstractController extends Controller
      * Execute Command
      *
      * @param string $command
-     * @param string $mode
      *
-     * @return boolean|string
+     * @return boolean
      */
-    protected function executeCommand($command, $mode = 'asynchronous')
-    {
+    protected function executeCommand(
+        $command
+    ) {
         $process = new Process($command);
-        if ($mode === 'live') {
-            $process->run(function ($type, $buffer) {
-                if (Process::ERR === $type) {
-                    $this->fail($buffer);
-                } else {
-                    echo 'OUT ' . $buffer;
-                }
-            });
-            if ($process->isSuccessful()) {
-                return true;
-            }
-        } else {
-            $process->run();
-            if ($process->isSuccessful()) {
-                return rtrim($process->getOutput(), PHP_EOL);
-            }
+        $process->setTimeout(600);
+        $process->setIdleTimeout(300);
+
+        $process->run();
+        if (!$process->isSuccessful()) {
+            $this->fail();
+        }
+        $stdOut = rtrim($process->getErrorOutput(), PHP_EOL);
+        if (strlen($stdOut)) {
+            $this->commandStderr = explode(PHP_EOL, $stdOut);
+        }
+        $stdErr = rtrim($process->getOutput(), PHP_EOL);
+        if (strlen($stdErr)) {
+            $this->commandStdout = explode(PHP_EOL, $stdErr);
         }
 
-        $this->fail($process->getErrorOutput());
+        return $process->isSuccessful();
+    }
 
-        return false;
+    /**
+     * Execute Live Command
+     *
+     * @param string $command
+     *
+     * @return StreamedResponse
+     */
+    protected function executeLiveCommand(
+        $command
+    ) {
+        $response = new StreamedResponse();
+        $process = new Process($command);
+        $process->setTimeout(600);
+        $process->setIdleTimeout(300);
+        $response->setCallback(function () use ($process) {
+            try {
+                $process->mustRun(function ($type, $buffer) {
+                    if (Process::ERR === $type) {
+                        $this->fail();
+                        echo $buffer;
+                        ob_flush();
+                        flush();
+                    } else {
+                        echo $buffer;
+                        ob_flush();
+                        flush();
+                    }
+                });
+            } catch (ProcessFailedException $e) {
+                $this->fail($e->getMessage());
+            }
+        });
+
+        return $response;
     }
 
     /**
@@ -111,10 +152,34 @@ class AbstractController extends Controller
      *
      * @return void
      */
-    protected function fail($message)
+    protected function fail($message = null)
     {
         $this->commandStatus = self::STATUS_ERROR;
-        $this->errorMessages[] = $message;
+        if ($message !== null) {
+            $this->commandStderr[] = $message;
+        }
+    }
+
+    /**
+     * Get path
+     *
+     * Slashes in the url are encoded as exclamation marks
+     *
+     * @var string $basePath
+     * @var string $path
+     *
+     * @return array
+     */
+    protected function getPath($basePath = '', $path = '')
+    {
+        $path = str_replace(array('%21', '!'), '/', $path);
+
+        $fullPath = realpath($basePath . '/' . $path);
+        if (!strpos($fullPath, $basePath) === 0) {
+            $fullPath = $basePath;
+        }
+
+        return $fullPath;
     }
 
     /**
@@ -156,15 +221,18 @@ class AbstractController extends Controller
      *
      * @return mixed $data
      */
-    protected function prepareData(Request $request, $data)
+    protected function prepareData(Request $request, $data = null)
     {
         if ($request->getRequestFormat() === 'json') {
             $json = new \stdClass();
             $json->status = $this->commandStatus;
-            if ($this->commandStatus === self::STATUS_ERROR) {
-                $json->data = $this->errorMessages;
-            } else {
-                $json->data = $data;
+            if ($data) {
+                $json->stdout = $data;
+            } elseif (count($this->commandStdout)) {
+                $json->stdout = $this->commandStdout;
+            }
+            if (count($this->commandStderr)) {
+                $json->stderr = $this->commandStderr;
             }
             $data = json_encode($json);
         } else {
