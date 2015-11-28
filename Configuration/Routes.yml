@@ -19,20 +19,15 @@ composerUpdate:
   defaults: { _controller: '\MaxServ\Typo3Local\ComposerController::updateAction', _format: 'json', path: '', devMode: 'no-dev' }
   requirements: { _format: 'html|json', _method: 'GET', devMode: 'dev|no-dev' }
 
+phpunitUnit:
+  path:     /phpunit/unit/{site}/{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\PhpunitController::unitAction', _format: 'json' }
+  requirements: { _format: 'html|json', _method: 'GET' }
+
 sites:
   path:     /site/list/{_format}
   defaults: { _controller: '\MaxServ\Typo3Local\SiteController::listAction', _format: 'json' }
   requirements: { _format: 'html|json', _method: 'GET' }
-
-sitesResetAll:
-  path:     /site/reset
-  defaults: { _controller: '\MaxServ\Typo3Local\SiteController::resetSitesAction' }
-  requirements: { _method: 'GET' }
-
-sitesResetSite:
-  path:     /site/reset/{site}
-  defaults: { _controller: '\MaxServ\Typo3Local\SiteController::resetSiteAction' }
-  requirements: { _method: 'GET' }
 
 gitBranch:
   path:     /git/branch/{site}/{repository}/{_format}
