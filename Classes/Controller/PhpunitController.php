@@ -33,6 +33,44 @@ use Symfony\Component\HttpFoundation\Response;
 class PhpunitController extends AbstractController
 {
     /**
+     * Run functional tests
+     *
+     * @param Request $request
+     * @param string $site
+     *
+     * @return Response
+     */
+    public function functionalAction(Request $request, $site)
+    {
+        $path = $this->getSitePath($site);
+        if ($this->changeDirectory($path)) {
+            $databaseName = str_replace('.', '_', $site);
+            if ($request->getRequestFormat() === 'json') {
+                $this->executeCommand(
+                    'typo3DatabaseName="' . $databaseName . '" typo3DatabaseUsername="root" typo3DatabasePassword="supersecret" typo3DatabaseHost="localhost" ./bin/phpunit -c typo3_src/typo3/sysext/core/Build/FunctionalTests.xml'
+                );
+                $data = $this->prepareData($request);
+
+                $response = new Response($data);
+                $response->prepare($request);
+
+                return $response;
+            } else {
+                $response = $this->executeLiveCommand(
+                    'typo3DatabaseName="' . $databaseName . '" typo3DatabaseUsername="root" typo3DatabasePassword="supersecret" typo3DatabaseHost="localhost" ./bin/phpunit -c typo3_src/typo3/sysext/core/Build/FunctionalTests.xml'
+                );
+
+                return $response;
+            }
+        }
+
+        $response = new Response();
+        $response->prepare($request);
+
+        return $response;
+    }
+
+    /**
      * Run unit tests
      *
      * @param Request $request
@@ -61,7 +99,6 @@ class PhpunitController extends AbstractController
 
                 return $response;
             }
-
         }
 
         $response = new Response();

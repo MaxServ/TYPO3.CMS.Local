@@ -19,6 +19,11 @@ composerUpdate:
   defaults: { _controller: '\MaxServ\Typo3Local\ComposerController::updateAction', _format: 'json', path: '', devMode: 'no-dev' }
   requirements: { _format: 'html|json', _method: 'GET', devMode: 'dev|no-dev' }
 
+phpunitFunctional:
+  path:     /phpunit/functional/{site}/{_format}
+  defaults: { _controller: '\MaxServ\Typo3Local\PhpunitController::functionalAction', _format: 'json' }
+  requirements: { _format: 'html|json', _method: 'GET' }
+
 phpunitUnit:
   path:     /phpunit/unit/{site}/{_format}
   defaults: { _controller: '\MaxServ\Typo3Local\PhpunitController::unitAction', _format: 'json' }
