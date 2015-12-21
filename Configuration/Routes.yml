@@ -51,7 +51,7 @@ gitCheckout:
 
 gitFetch:
   path:     /git/fetch/{site}/{repository}/{remote}/{branch}/{_format}
-  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::fetchAction', _format: 'json', remote: 'origin', branch: 'master' }
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::fetchAction', _format: 'json', remote: 'undefined', branch: 'undefined' }
   requirements: { _format: 'html|json', _method: 'GET' }
 
 gitGetUserEmail:
@@ -79,7 +79,7 @@ gitPick:
 
 gitPull:
   path:     /git/pull/{site}/{repository}/{remote}/{branch}
-  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::pullAction', _format: 'json', remote: 'origin', branch: 'master' }
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::pullAction', _format: 'json', remote: 'undefined', branch: 'undefined' }
 
 gitRepositories:
   path:     /git/list/{site}/{_format}
@@ -88,7 +88,7 @@ gitRepositories:
 
 gitReset:
   path:     /git/reset/{site}/{repository}/{remote}/{branch}
-  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::resetAction', _format: 'json', remote: 'origin', branch: 'master' }
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::resetAction', _format: 'json', remote: 'undefined', branch: 'undefined' }
 
 gitStatus:
   path:     /git/status/{site}/{repository}/{range}/{detail}

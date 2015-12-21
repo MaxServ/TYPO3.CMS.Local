@@ -152,7 +152,11 @@ class GitRepositoryController extends AbstractController
         $repositoryPath = $this->getPath($path, $repository);
 
         if ($this->changeDirectory($repositoryPath)) {
-            $this->executeCommand('git fetch ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
+            if ($remote === 'undefined' && $branch === 'undefined') {
+                $this->executeCommand('git fetch');
+            } else {
+                $this->executeCommand('git fetch ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
+            }
         }
         $data = $this->prepareData($request);
 
@@ -263,7 +267,11 @@ class GitRepositoryController extends AbstractController
         $repository = $this->getGitRepository($repository);
         $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
-            $this->executeCommand('git pull ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
+            if ($remote === 'undefined' && $branch === 'undefined') {
+                $this->executeCommand('git pull');
+            } else {
+                $this->executeCommand('git pull ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
+            }
         }
 
         $data = $this->prepareData($request);
@@ -329,7 +337,11 @@ class GitRepositoryController extends AbstractController
         $repository = $this->getGitRepository($repository);
         $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
-            $this->executeCommand('git reset --hard ' . escapeshellcmd($remote) . '/' . escapeshellcmd($branch));
+            if ($remote === 'undefined' && $branch === 'undefined') {
+                $this->executeCommand('git reset --hard');
+            } else {
+                $this->executeCommand('git reset --hard ' . escapeshellcmd($remote) . '/' . escapeshellcmd($branch));
+            }
         }
 
         $data = $this->prepareData($request);
