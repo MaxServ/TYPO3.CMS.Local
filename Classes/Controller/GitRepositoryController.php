@@ -33,6 +33,19 @@ use Symfony\Component\HttpFoundation\Response;
 class GitRepositoryController extends AbstractController
 {
     /**
+     * Get Git repository
+     *
+     * @param string $repository
+     *
+     * @return boolean
+     */
+    protected function getGitRepository(
+        $repository
+    ) {
+        return ($repository === 'site-root') ? "" : $repository;
+    }
+
+    /**
      * Show git branches
      *
      * @param Request $request
@@ -44,6 +57,7 @@ class GitRepositoryController extends AbstractController
     public function branchAction(Request $request, $repository, $site)
     {
         $path = $this->getSitePath($site);
+        $repository = $this->getGitRepository($repository);
         $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
             $this->executeCommand('git branch -r');
@@ -74,6 +88,7 @@ class GitRepositoryController extends AbstractController
     ) {
         $change = str_replace(array('%21', '!'), '/', $change);
         $path = $this->getSitePath($site);
+        $repository = $this->getGitRepository($repository);
         $repositoryPath = $this->getPath($path, $repository);
 
         if ($this->changeDirectory($repositoryPath)) {
@@ -99,6 +114,7 @@ class GitRepositoryController extends AbstractController
     public function cleanAction(Request $request, $site, $repository)
     {
         $path = $this->getSitePath($site);
+        $repository = $this->getGitRepository($repository);
         $repositoryPath = $this->getPath($path, $repository);
 
         if ($this->changeDirectory($repositoryPath)) {
@@ -132,6 +148,7 @@ class GitRepositoryController extends AbstractController
     ) {
         $path = $this->getSitePath($site);
 
+        $repository = $this->getGitRepository($repository);
         $repositoryPath = $this->getPath($path, $repository);
 
         if ($this->changeDirectory($repositoryPath)) {
@@ -194,13 +211,13 @@ class GitRepositoryController extends AbstractController
         $path = $this->getSitePath($site);
 
         $gitRepositories = glob(
-            $path . '/{**,**/**,**/**/**,**/**/**/**}/.git',
+            $path . '{/,/**,/**/**,/**/**/**,/**/**/**/**}/.git',
             GLOB_BRACE | GLOB_ONLYDIR
         );
         $data = array();
         foreach ($gitRepositories as $repository) {
             if (!strstr($repository, 'local.neos.io') && is_dir($repository)) {
-                $data[] = str_replace(
+                $entry = str_replace(
                     array(
                         $path . '/',
                         '/.git'
@@ -208,6 +225,10 @@ class GitRepositoryController extends AbstractController
                     '',
                     $repository
                 );
+                if ($entry === '') {
+                    $entry = 'site-root';
+                }
+                $data[] = $entry;
             }
         }
 
@@ -239,6 +260,7 @@ class GitRepositoryController extends AbstractController
     ) {
         $path = $this->getSitePath($site);
 
+        $repository = $this->getGitRepository($repository);
         $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
             $this->executeCommand('git pull ' . escapeshellcmd($remote) . ' ' . escapeshellcmd($branch));
@@ -270,6 +292,7 @@ class GitRepositoryController extends AbstractController
 
         $path = $this->getSitePath($site);
 
+        $repository = $this->getGitRepository($repository);
         $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
             $this->executeCommand('git fetch ' . $fetchUrl . ' ' . $change . ' && git cherry-pick FETCH_HEAD');
@@ -303,6 +326,7 @@ class GitRepositoryController extends AbstractController
     ) {
         $path = $this->getSitePath($site);
 
+        $repository = $this->getGitRepository($repository);
         $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
             $this->executeCommand('git reset --hard ' . escapeshellcmd($remote) . '/' . escapeshellcmd($branch));
@@ -383,6 +407,7 @@ class GitRepositoryController extends AbstractController
         $range = abs((integer)$range);
 
         $path = $this->getSitePath($site);
+        $repository = $this->getGitRepository($repository);
         $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
             if ($detail === '--oneline') {
@@ -458,6 +483,7 @@ class GitRepositoryController extends AbstractController
     {
         $path = $this->getSitePath($site);
 
+        $repository = $this->getGitRepository($repository);
         $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
             $this->executeCommand('git tag');

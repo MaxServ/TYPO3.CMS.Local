@@ -105,3 +105,5 @@ version:
 
 default:
   path:     /
+  defaults: { _controller: '\MaxServ\Typo3Local\IndexController::indexAction' }
+  requirements: { _method: 'GET' }

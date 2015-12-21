@@ -38,7 +38,7 @@ class SiteController extends AbstractController
      *
      * @return array
      */
-    private function getTypo3Sites()
+    public function getTypo3Sites()
     {
         $sites = scandir(REVIEW_DOCUMENT_ROOT . '/..');
         $exclude = array(

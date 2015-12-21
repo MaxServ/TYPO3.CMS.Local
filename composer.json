@@ -28,6 +28,7 @@
     "symfony/http-kernel": "^2.7",
     "symfony/process": "^2.7",
     "symfony/routing": "^2.7",
-    "symfony/yaml": "^2.7"
+    "symfony/yaml": "^2.7",
+    "twig/twig": "~1.0"
   }
 }
