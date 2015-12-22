@@ -103,7 +103,7 @@ version:
   defaults: { _controller: '\MaxServ\Typo3Local\VersionController::listAction', _format: 'json' }
   requirements: { _format: 'html|json', _method: 'GET' }
 
-default:
-  path:     /
-  defaults: { _controller: '\MaxServ\Typo3Local\IndexController::indexAction' }
-  requirements: { _method: 'GET' }
+#default:
+#  path:     /
+#  defaults: { _controller: '\MaxServ\Typo3Local\IndexController::indexAction' }
+#  requirements: { _method: 'GET' }
