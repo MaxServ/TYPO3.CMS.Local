@@ -37,6 +37,8 @@ try {
     $response->send();
 
     $kernel->terminate($request, $response);
+
+    exit();
 } catch (NotFoundHttpException $exception) {
 }
 
