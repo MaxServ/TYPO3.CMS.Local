@@ -64,7 +64,7 @@ class GitRepositoryController extends AbstractController
         }
         if (count($this->commandStdout)) {
             $cleanedArray = array();
-            foreach ($this->commandStdout as $key => $branch) {
+            foreach ($this->commandStdout as $branch) {
                 if (strpos($branch, '->') === false) {
                     $cleanedArray[] = ltrim($branch);
                 }
