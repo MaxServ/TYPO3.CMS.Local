@@ -62,6 +62,15 @@ class GitRepositoryController extends AbstractController
         if ($this->changeDirectory($repositoryPath)) {
             $this->executeCommand('git branch -r');
         }
+        if (count($this->commandStdout)) {
+            $cleanedArray = array();
+            foreach ($this->commandStdout as $key => $branch) {
+                if (strpos($branch, '->') === false) {
+                    $cleanedArray[] = ltrim($branch);
+                }
+            }
+            $this->commandStdout = $cleanedArray;
+        }
         $data = $this->prepareData($request);
 
         $response = new Response($data);
