@@ -364,7 +364,7 @@ class GitRepositoryController extends AbstractController
     {
         $userName = str_replace('%20', ' ', $userName);
 
-        $this->executeCommand('git config --global --replace-all user.name ' . escapeshellarg($userName));
+        $this->executeCommand('HOME=/home/vagrant git config --global --replace-all user.name ' . escapeshellarg($userName));
         $data = $this->prepareData($request);
 
         $response = new Response($data);
@@ -383,7 +383,7 @@ class GitRepositoryController extends AbstractController
      */
     public function setUserEmailAction(Request $request, $userEmail)
     {
-        $this->executeCommand('git config --global --replace-all user.email ' . escapeshellarg($userEmail));
+        $this->executeCommand('HOME=/home/vagrant git config --global --replace-all user.email ' . escapeshellarg($userEmail));
         $data = $this->prepareData($request);
 
         $response = new Response($data);
