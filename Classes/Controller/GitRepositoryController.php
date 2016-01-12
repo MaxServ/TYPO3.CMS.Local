@@ -362,6 +362,40 @@ class GitRepositoryController extends AbstractController
     }
 
     /**
+     * Get revision list of a git repository
+     *
+     * @param Request $request
+     * @param string $range
+     * @param string $repository
+     * @param string $site
+     *
+     * @return Response
+     */
+    public function revListAction(
+        Request $request,
+        $range,
+        $repository,
+        $site
+    ) {
+        $path = $this->getSitePath($site);
+
+        $repository = $this->getGitRepository($repository);
+        $repositoryPath = $this->getPath($path, $repository);
+        if ($this->changeDirectory($repositoryPath)) {
+            # From a comment on a webpage somewhere:
+            # This did not work for me, but "git rev-list [first] ^[second] --count" did.
+            $this->executeCommand('git --no-pager log --pretty=format:"%H" ' . escapeshellcmd($range));
+        }
+
+        $data = $this->prepareData($request);
+
+        $response = new Response($data);
+        $response->prepare($request);
+
+        return $response;
+    }
+
+    /**
      * Set user.name
      *
      * @param Request $request
@@ -402,7 +436,7 @@ class GitRepositoryController extends AbstractController
     }
 
     /**
-     * Return git status
+     * Return git log
      *
      * @param Request $request
      *
@@ -413,7 +447,7 @@ class GitRepositoryController extends AbstractController
      *
      * @return Response
      */
-    public function statusAction(
+    public function logAction(
         Request $request,
         $detail,
         $site,
@@ -421,18 +455,24 @@ class GitRepositoryController extends AbstractController
         $repository
     ) {
         $commits = array();
+        $hash = '';
 
         if ($detail === 'oneline') {
             $detail = '--oneline';
         }
-        $range = abs((integer)$range);
+        if (!preg_match('/[0-9a-f]{5,40}/', $range)) {
+            $range = abs((integer)$range);
+        } else {
+            $hash = $range;
+            $range = 1;
+        }
 
         $path = $this->getSitePath($site);
         $repository = $this->getGitRepository($repository);
         $repositoryPath = $this->getPath($path, $repository);
         if ($this->changeDirectory($repositoryPath)) {
             if ($detail === '--oneline') {
-                $this->executeCommand('git log -' . $range . ' ' . $detail);
+                $this->executeCommand('git log -' . $range . ' ' . $hash. ' ' . $detail);
                 $lines = $this->commandStdout;
                 foreach ($lines as $line) {
                     list($sha1, $subject) = explode(' ', $line, 2);
@@ -443,7 +483,7 @@ class GitRepositoryController extends AbstractController
                 }
             } else {
                 $this->executeCommand(
-                    'git log -' . $range . ' --pretty=format:\'<change>%n' .
+                    'git log -' . $range . ' ' . $hash . ' --pretty=format:\'<change>%n' .
                     '<commit>%H</commit>%n' .
                     '<abbreviated_commit>%h</abbreviated_commit>%n' .
                     '<tree>%T</tree>%n' .
@@ -451,6 +491,7 @@ class GitRepositoryController extends AbstractController
                     '<parent>%P</parent>%n' .
                     '<abbreviated_parent>%p</abbreviated_parent>>%n' .
                     '<subject><![CDATA[%s]]></subject>%n' .
+                    '<timestamp>%at</timestamp>%n' .
                     '<body><![CDATA[%b]]></body>%n' .
                     '<author>%n' .
                     '  <name>%aN</name>%n' .

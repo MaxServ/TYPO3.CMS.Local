@@ -59,6 +59,10 @@ gitGetUserEmail:
   defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::getUserEmailAction', _format: 'json' }
   requirements: { _format: 'html|json', _method: 'GET' }
 
+gitLog:
+  path:     /git/log/{site}/{repository}/{range}/{detail}
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::logAction', _format: 'json', range: '1', detail: 'oneline' }
+
 gitSetUserEmail:
   path:     /git/setuseremail/{userEmail}
   defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::setUserEmailAction', _format: 'json' }
@@ -90,9 +94,13 @@ gitReset:
   path:     /git/reset/{site}/{repository}/{remote}/{branch}
   defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::resetAction', _format: 'json', remote: 'undefined', branch: 'undefined' }
 
+gitRevList:
+  path:     /git/rev-list/{site}/{repository}/{range}
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::revListAction', _format: 'json'}
+
 gitStatus:
   path:     /git/status/{site}/{repository}/{range}/{detail}
-  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::statusAction', _format: 'json', range: '1', detail: 'oneline' }
+  defaults: { _controller: '\MaxServ\Typo3Local\GitRepositoryController::logAction', _format: 'json', range: '1', detail: 'oneline' }
 
 gitTag:
   path:     /git/tag/{site}/{repository}/{_format}

@@ -360,8 +360,32 @@ Will hard reset the git repository to origin/master.
 You may specify remote and branch parameters:
 [`/git/reset/review.local.typo3.org/typo3_src/{remote}/{branch}`](http://local.typo3.org/git/reset/review.local.typo3.org/typo3_src/{remote}/{branch})
 
-### Status
-[`/git/status/review.local.typo3.org/vendor!mikey179!vfsStream`](http://local.typo3.org/git/status/review.local.typo3.org/vendor!mikey179!vfsStream)
+### Revision List
+[`/git/rev-list/review.local.typo3.org/typo3_src/583c888de32e077111951cced1a33571516cb5d3..97158c5d934a172d24fe504c360a4f9e868f14e6`](http://local.typo3.org/git/rev-list/review.local.typo3.org/typo3_src/583c888de32e077111951cced1a33571516cb5d3..97158c5d934a172d24fe504c360a4f9e868f14e6)
+
+Will return the list of revision hashes between the two given revisions.
+
+```
+{
+  "status": "OK",
+  "stdout": [
+    "97158c5d934a172d24fe504c360a4f9e868f14e6",
+    "270920ce91bdaf1f728a6ee96103f97b216a7635",
+    "a860716a43b293d550efb87cb39f5aefdbf10ce6",
+    "2a5c654dac7fac010f9e83e6f9eedf9ef721395c",
+    ...
+    "c7e409c7ad43a22310981e03d068e3e54b1cbe96",
+    "9ec6bd4221acc1fa32174e8f0a5a9932500b6850",
+    "3e638a4e15c9ef7e713e72f2fedffdf9ce5623c2",
+    "97d2ee054a019e121fe017d67aa19ee48249a893"
+  ]
+}
+```
+You need to specify site, repository and range parameters:
+[`/git/rev-list/review.local.typo3.org/typo3_src/{range}`](http://local.typo3.org/git/rev-list/review.local.typo3.org/typo3_src/{range})
+
+### Log
+[`/git/log/review.local.typo3.org/vendor!mikey179!vfsStream`](http://local.typo3.org/git/log/review.local.typo3.org/vendor!mikey179!vfsStream)
 
 Will return a json object containing the latest commit sha1 and message. Note that the slashes in the repository are encoded as exclamation marks in the request. You can either use '!' or '%21' to encode the '/' characters.
 ```
@@ -376,7 +400,7 @@ Will return a json object containing the latest commit sha1 and message. Note th
 }
 ```
 
-[`/git/status/review.local.typo3.org/typo3_src/3`](http://local.typo3.org/git/status/review.local.typo3.org/typo3_src/3)
+[`/git/log/review.local.typo3.org/typo3_src/3`](http://local.typo3.org/git/log/review.local.typo3.org/typo3_src/3)
 Will return the last 3 commit messages in oneline format.
 ```
 {
@@ -398,7 +422,7 @@ Will return the last 3 commit messages in oneline format.
 }
 ```
 
-[`/git/status/review.local.typo3.org/typo3_src/2/full`](http://local.typo3.org/git/status/review.local.typo3.org/typo3_src/2/full)
+[`/git/log/review.local.typo3.org/typo3_src/2/full`](http://local.typo3.org/git/log/review.local.typo3.org/typo3_src/2/full)
 Will return the last 2 commit messages in full format.
 
 ```
