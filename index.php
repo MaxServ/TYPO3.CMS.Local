@@ -485,8 +485,13 @@ $sites = $siteController->getTypo3Sites();
 
         <p class="panel-text">
             Great Success!<br/>
-            You have successfully installed TYPO3Review.
+            You have successfully installed TYPO3Review.<br/>
         </p>
+        <h4 class="panel-text">
+            <a href="https://chrome.google.com/webstore/detail/typo3-review/omloegomfdeniikpijekbmggdgmkmkck">
+                Get the TYPO3 Chrome Review Helper extension
+            </a>
+        </h4>
 
         <p class="panel-text">
             The following sites are available:
