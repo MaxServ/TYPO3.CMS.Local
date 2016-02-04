@@ -45,7 +45,8 @@ class SiteController extends AbstractController
             '.',
             '..',
             'html',
-            'local.typo3.org'
+            'local.typo3.org',
+            'xhprof.local.typo3.org'
         );
         $typo3Sites = array();
         foreach ($sites as $site) {
