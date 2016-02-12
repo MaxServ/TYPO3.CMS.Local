@@ -69,7 +69,7 @@ $sites = $siteController->getTypo3Sites();
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>TYPO3 Homestead / Review</title>
+    <title>TYPO3 Homestead</title>
 
     <style type="text/css">
         html {
