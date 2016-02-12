@@ -69,7 +69,7 @@ $sites = $siteController->getTypo3Sites();
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>TYPO3 Review</title>
+    <title>TYPO3 Homestead / Review</title>
 
     <style type="text/css">
         html {
@@ -480,12 +480,12 @@ $sites = $siteController->getTypo3Sites();
                         <path fill="#ff8700" d="m-140,270c16,0,32,2.6,32,12,0,19-12,41-18,41-11,0-24-30-24-45,0-6.8,2.6-8.1,9.4-8.1"/>
                     </g>
                 </svg>
-            </a> Review
+            </a>Homestead
         </p>
 
         <p class="panel-text">
             Great Success!<br/>
-            You have successfully installed TYPO3Review.<br/>
+            You have successfully installed TYPO3 Homestead.<br/>
         </p>
         <h4 class="panel-text">
             <a href="https://chrome.google.com/webstore/detail/typo3-review/omloegomfdeniikpijekbmggdgmkmkck" target="_blank">
