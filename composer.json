@@ -18,7 +18,8 @@
     }
   },
   "config": {
-    "optimize-autoloader": true
+    "optimize-autoloader": true,
+    "preferred-install": "dist"
   },
   "require": {
     "php": ">=5.3.3",

@@ -112,15 +112,19 @@ function doReset()
 	chdir('/var/www/dev-master.local.typo3.org/typo3_src');
 	liveExecuteCommand('git reset --hard origin/master');
 	my_flush();
-	chdir('/var/www/dev-master.local.typo3.org');
-	liveExecuteCommand('/var/www/dev-master.local.typo3.org/typo3cms cache:flush');
+	if (file_exists('/var/www/dev-master.local.typo3.org/typo3cms')) {
+		chdir('/var/www/dev-master.local.typo3.org');
+		liveExecuteCommand('/var/www/dev-master.local.typo3.org/typo3cms cache:flush');
+	}
 	echo '<br /><b>Reset review.local.typo3.org</b><br />';
 	my_flush();
 	chdir('/var/www/review.local.typo3.org/typo3_src');
 	liveExecuteCommand('git reset --hard origin/master');
 	my_flush();
-	chdir('/var/www/review.local.typo3.org');
-	liveExecuteCommand('/var/www/review.local.typo3.org/typo3cms cache:flush');
+	if (file_exists('/var/www/review.local.typo3.org/typo3cms')) {
+		chdir('/var/www/review.local.typo3.org');
+		liveExecuteCommand('/var/www/review.local.typo3.org/typo3cms cache:flush');
+	}
 	my_flush();
 }
 
@@ -153,7 +157,7 @@ function doUnitTest($site)
 	echo '<br /><b>Unit tests on ' . $site . '.local.typo3.org</b><br />';
 	my_flush();
 	chdir('/var/www/' . $site . '.local.typo3.org');
-	$phpUnitCommand = './bin/phpunit -c typo3_src/typo3/sysext/core/Build/UnitTests.xml';
+	$phpUnitCommand = '/usr/local/phpbrew/php/php-7.0.3/bin/php ./bin/phpunit -c typo3_src/typo3/sysext/core/Build/UnitTests.xml';
 	liveExecuteCommand($phpUnitCommand);
 	my_flush();
 }
