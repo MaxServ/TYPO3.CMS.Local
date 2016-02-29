@@ -157,7 +157,7 @@ function doUnitTest($site)
 	echo '<br /><b>Unit tests on ' . $site . '.local.typo3.org</b><br />';
 	my_flush();
 	chdir('/var/www/' . $site . '.local.typo3.org');
-	$phpUnitCommand = '/usr/local/phpbrew/php/php-7.0.3/bin/php ./bin/phpunit -c typo3_src/typo3/sysext/core/Build/UnitTests.xml';
+	$phpUnitCommand = '/usr/bin/php ./bin/phpunit -c typo3_src/typo3/sysext/core/Build/UnitTests.xml';
 	liveExecuteCommand($phpUnitCommand);
 	my_flush();
 }
